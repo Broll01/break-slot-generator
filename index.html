@@ -187,18 +187,21 @@
             <span class="block text-xs font-bold text-emerald-400 uppercase tracking-wider mb-2">
               <i class="fa-solid fa-user-plus mr-1"></i> Agent Operations (Add / Remove)
             </span>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-2">
-              <div class="flex gap-2">
-                <input type="text" id="newAgentName" placeholder="Agent Name (e.g. Md. Rahim)" class="flex-1 bg-zinc-900 border border-zinc-700 text-xs rounded-xl px-3 py-2 text-zinc-200 focus:outline-none focus:border-purple-500">
-                <select id="targetDeptSelect" class="w-32 bg-zinc-900 border border-zinc-700 text-xs rounded-xl px-2 py-2 text-zinc-200 focus:outline-none focus:border-purple-500"></select>
-                <button onclick="addNewAgentUI()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-3 py-2 rounded-xl transition-all flex items-center gap-1">
-                  <i class="fa-solid fa-plus"></i> Add
+            <div class="flex flex-col gap-3">
+              <!-- Add Agent Form Row -->
+              <div class="flex flex-wrap sm:flex-nowrap items-center gap-2">
+                <input type="text" id="newAgentName" placeholder="Agent Name (e.g. Md. Rahim)" class="flex-1 min-w-[140px] bg-zinc-900 border border-zinc-700 text-xs rounded-xl px-3 py-2 text-zinc-200 focus:outline-none focus:border-purple-500">
+                <select id="targetDeptSelect" class="flex-1 min-w-[120px] bg-zinc-900 border border-zinc-700 text-xs rounded-xl px-3 py-2 text-zinc-200 focus:outline-none focus:border-purple-500"></select>
+                <button onclick="addNewAgentUI()" class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-4 py-2 rounded-xl transition-all flex items-center justify-center gap-1 shrink-0">
+                  <i class="fa-solid fa-plus"></i> Add Agent
                 </button>
               </div>
-              <div class="flex gap-2">
-                <select id="removeAgentSelect" class="flex-1 bg-zinc-900 border border-zinc-700 text-xs rounded-xl px-3 py-2 text-zinc-200 focus:outline-none focus:border-purple-500"></select>
-                <button onclick="removeAgentUI()" class="bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs px-3 py-2 rounded-xl transition-all flex items-center gap-1">
-                  <i class="fa-solid fa-user-minus"></i> Remove
+
+              <!-- Delete Agent Form Row -->
+              <div class="flex flex-wrap sm:flex-nowrap items-center gap-2">
+                <select id="removeAgentSelect" class="flex-1 min-w-[200px] bg-zinc-900 border border-zinc-700 text-xs rounded-xl px-3 py-2 text-zinc-200 focus:outline-none focus:border-purple-500"></select>
+                <button onclick="removeAgentUI()" class="w-full sm:w-auto bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs px-4 py-2 rounded-xl transition-all flex items-center justify-center gap-1 shrink-0">
+                  <i class="fa-solid fa-user-minus"></i> Remove Agent
                 </button>
               </div>
             </div>

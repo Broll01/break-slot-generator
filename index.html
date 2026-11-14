@@ -1,162 +1,35 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Smart Dynamic Break Slot Generator Pro</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<style>
-  :root{--bg:#09090b;--card:rgba(24,24,27,.82);--border:rgba(255,255,255,.12);--text:#f8fafc;--muted:#94a3b8;--a1:#8b5cf6;--a2:#3b82f6;--a3:#10b981;--input:rgba(0,0,0,.4);--panel:rgba(0,0,0,.25);--danger:#ef4444;--warn:#f59e0b}
-  body.light{--bg:#f1f5f9;--card:rgba(255,255,255,.94);--border:rgba(0,0,0,.12);--text:#0f172a;--muted:#475569;--input:#ffffff;--panel:rgba(0,0,0,.03);color-scheme:light}
-  body{color-scheme:dark}
-  *{box-sizing:border-box;margin:0;padding:0;font-family:Inter,-apple-system,system-ui,"Segoe UI",sans-serif}
-  body{background:var(--bg);color:var(--text);min-height:100vh;padding:32px 14px;display:flex;justify-content:center;transition:background .3s,color .3s}
-  .wrap{width:100%;max-width:900px}
-  .hidden{display:none !important}
-  .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;gap:12px;flex-wrap:wrap}
-  h1{font-size:26px;font-weight:800;background:linear-gradient(90deg,var(--a1),var(--a2),var(--a3));-webkit-background-clip:text;background-clip:text;color:transparent}
-  .card{background:var(--card);border:1px solid var(--border);border-radius:22px;padding:26px;margin-bottom:22px;backdrop-filter:blur(18px);box-shadow:0 20px 40px -18px rgba(0,0,0,.35)}
-  .title{font-size:17px;font-weight:700;margin-bottom:14px}
-  label{display:block;font-size:11.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin:14px 0 6px}
-  input[type=text],input:not([type]),input[type=time],select,textarea{width:100%;background:var(--input);border:1px solid var(--border);color:var(--text);padding:11px 12px;border-radius:12px;font-size:13.5px;outline:none;transition:.2s}
-  input:focus,select:focus,textarea:focus{border-color:var(--a1);box-shadow:0 0 0 4px rgba(139,92,246,.15)}
-  textarea{resize:vertical;font-family:"Courier New",monospace;font-size:13px;line-height:1.5}
-  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
-  .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px}
-  .row>*{flex:1;min-width:130px}
-  .row>.nofill{flex:0 0 auto;min-width:0}
-  .between{justify-content:space-between}
-  .muted{color:var(--muted);font-size:12px}
-  .btn{width:100%;padding:15px;border-radius:14px;border:none;font-size:15px;font-weight:700;color:#fff;cursor:pointer;margin-top:18px;background:linear-gradient(135deg,var(--a3),#059669);box-shadow:0 8px 24px rgba(16,185,129,.25);transition:.2s}
-  .btn:hover{transform:translateY(-2px)}
-  .btn-sm{padding:9px 14px;border-radius:9px;border:none;font-size:12px;font-weight:700;color:#fff;cursor:pointer;background:#475569;white-space:nowrap;flex:0 0 auto !important;min-width:0 !important}
-  .ok{background:var(--a2)} .danger{background:var(--danger)} .acc{background:var(--a1)} .good{background:var(--a3)}
-  .link{background:none;border:none;color:var(--a2);font-weight:700;font-size:12.5px;cursor:pointer}
-  .pill{background:var(--input);border:1px solid var(--border);color:var(--text);padding:8px 14px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer}
-  .panel{margin-top:14px;display:flex;flex-direction:column;gap:12px}
-  .box{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:14px}
-  .box h3{font-size:12px;font-weight:700;color:#60a5fa;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
-  .picker{margin-top:10px;max-height:260px;overflow-y:auto;border:1px solid var(--border);border-radius:12px;background:var(--input)}
-  .pick-row{display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid var(--border);font-size:13px;cursor:pointer;text-transform:none;letter-spacing:0;color:var(--text);margin:0;font-weight:500}
-  .pick-row:last-child{border-bottom:none}
-  .pick-row input{width:auto;flex:0 0 auto}
-  .pick-name{flex:1}
-  .pick-dept{font-size:11px;color:var(--muted)}
-  .check{display:flex;align-items:center;gap:8px;text-transform:none;letter-spacing:0;font-size:13px;color:var(--text);margin:8px 0;font-weight:500}
-  .check input{width:auto}
-  .dirty{background:var(--warn);color:#111;font-size:11px;font-weight:700;padding:3px 9px;border-radius:12px}
-  .badges{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
-  .badge{background:rgba(127,127,127,.15);padding:5px 10px;border-radius:8px;font-size:12.5px;font-weight:600}
-  .badge-acc{background:rgba(139,92,246,.25)}
-  .count-badge{background:var(--a1);color:#fff;padding:4px 11px;border-radius:20px;font-size:12px;font-weight:700}
-  .sub{font-size:11.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin:16px 0 8px}
-  .note{background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.4);padding:10px 12px;border-radius:10px;font-size:12.5px;margin-bottom:12px}
-  .slots-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px}
-  .slot-card{background:var(--input);border:1px solid var(--border);border-radius:14px;padding:12px}
-  .slot-head{display:flex;justify-content:space-between;gap:8px;font-weight:700;font-size:13px;margin-bottom:8px;flex-wrap:wrap}
-  .srow{display:flex;justify-content:space-between;font-size:12.5px;padding:4px 0;border-bottom:1px dashed var(--border)}
-  .srow b{color:#34d399}
-  .srow.seniors b{color:#fbbf24}
-  .srow.total{border-bottom:none;font-weight:800;margin-top:4px}
-  .srow.total b{color:#60a5fa}
-  .table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:12px}
-  table.matrix{width:100%;border-collapse:collapse;font-size:12px;text-align:center}
-  table.matrix th,table.matrix td{padding:9px 10px;border:1px solid var(--border);white-space:nowrap}
-  table.matrix th{background:rgba(127,127,127,.12);color:#60a5fa}
-  table.matrix .tl{text-align:left;font-weight:600}
-  table.matrix .tt{font-weight:700;color:#60a5fa}
-  table.matrix tr.tot td{background:rgba(59,130,246,.15);font-weight:800}
-  pre{background:var(--input);border:1px solid var(--border);border-radius:12px;padding:16px;margin-top:14px;white-space:pre-wrap;font-family:"Courier New",monospace;font-size:13.5px;line-height:1.55;color:var(--text)}
-  .actions{margin-top:14px}
-  .actions button{padding:13px;border-radius:12px;border:none;color:#fff;font-weight:700;font-size:13.5px;cursor:pointer;flex:1}
-  .btn-copy{background:linear-gradient(135deg,var(--a2),#2563eb)}
-  .btn-dl{background:linear-gradient(135deg,#f59e0b,#d97706)}
-  .btn-img{background:linear-gradient(135deg,var(--a1),#6d28d9)}
-  .empty{padding:14px;text-align:center;color:var(--muted);font-size:13px}
-  #toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);background:var(--text);color:var(--bg);padding:13px 22px;border-radius:30px;font-weight:700;font-size:13.5px;opacity:0;visibility:hidden;transition:.35s;z-index:99;box-shadow:0 10px 30px rgba(0,0,0,.3);max-width:90vw;text-align:center}
-  #toast.show{opacity:1;visibility:visible;transform:translateX(-50%) translateY(0)}
-  @media(max-width:640px){.grid2,.grid3{grid-template-columns:1fr}}
-</style>
-</head>
-<body>
-<div class="wrap">
-
-  <div class="topbar">
-    <h1>Smart Dynamic Break Slot Generator Pro</h1>
-    <button class="pill" id="themeBtn" type="button">Light Mode</button>
-  </div>
-
-  <!-- Settings -->
-  <section class="card">
-    <div class="title">Schedule Settings</div>
-    <div class="grid2">
-      <div><label>Date</label><select id="dateSelect"></select></div>
-      <div>
-        <label>Session</label>
-        <select id="sessionTypeSelect">
-          <option value="Morning Break" selected>Morning Break</option>
-          <option value="Evening Break">Evening Break</option>
-        </select>
+<section class="card" id="dirCard">
+    <div class="card-head">
+      <div class="title"><span class="step">3</span> Agent Directory</div>
+      <div class="top-actions">
+        <button class="btn-sm" id="undoBtn" type="button">↩ Undo</button>
+        <button class="link" id="togglePanelBtn" type="button">Manage Panel ▾</button>
       </div>
     </div>
-    <div class="grid3">
-      <div><label>Start Time</label><input type="time" id="startTimePicker" value="08:30"></div>
-      <div>
-        <label>Slot Duration</label>
-        <select id="slotDurationSelect">
-          <option value="15">15 Mins</option>
-          <option value="30" selected>30 Mins</option>
-          <option value="45">45 Mins</option>
-          <option value="60">1 Hour</option>
-        </select>
-      </div>
-      <div>
-        <label>Total Slots</label>
-        <select id="slotCountSelect">
-          <option value="2">2 Slots</option>
-          <option value="3" selected>3 Slots</option>
-          <option value="4">4 Slots</option>
-          <option value="5">5 Slots</option>
-        </select>
-      </div>
-    </div>
-    <button class="btn" id="generateBtn" type="button">Generate Randomized Schedule</button>
-    <div class="muted" style="margin-top:8px;">Generation uses the saved database only. Click again any time to reshuffle.</div>
-  </section>
-
-  <!-- Database -->
-  <section class="card">
-    <div class="row between" style="margin-top:0;">
-      <div class="title" style="margin:0;">Agent Database</div>
-      <button class="link" id="togglePanelBtn" type="button">Manage Panel ▾</button>
-    </div>
+    <p class="hint">Master list of every agent with team and ID. Seniors are stored by ID and are never shown in the schedule lists, only counted in the report.</p>
 
     <div id="managerPanel" class="panel hidden">
-
       <div class="box">
         <h3>1. Teams (Add / Rename / Delete)</h3>
-        <div class="row"><input type="text" id="newDeptName" placeholder="New team name, e.g. AG Mart"><button class="btn-sm ok" id="addDeptBtn" type="button">Add Team</button></div>
-        <div class="row"><select id="renameDeptSelect"></select><input type="text" id="renameDeptInput" placeholder="New name for selected team"><button class="btn-sm" id="renameDeptBtn" type="button">Rename</button></div>
-        <div class="row"><select id="deleteDeptSelect"></select><button class="btn-sm danger" id="deleteDeptBtn" type="button">Delete Team</button></div>
+        <div class="row fill"><input type="text" id="newDeptName" placeholder="New team name, e.g. AG Mart"><button class="btn-sm ok" id="addDeptBtn" type="button">Add Team</button></div>
+        <div class="row fill"><select id="renameDeptSelect"></select><input type="text" id="renameDeptInput" placeholder="New name for selected team"><button class="btn-sm" id="renameDeptBtn" type="button">Rename</button></div>
+        <div class="row fill"><select id="deleteDeptSelect"></select><button class="btn-sm danger" id="deleteDeptBtn" type="button">Delete Team</button></div>
       </div>
 
       <div class="box">
-        <h3>2. Agents (Select, then Move / Remove / Mark Senior)</h3>
-        <div class="row">
-          <input type="text" id="pickerSearch" placeholder="Search agent or team...">
-          <select id="pickerDeptFilter"></select>
-        </div>
+        <h3>2. Agents (Select, then Move / Senior / Junior / Remove)</h3>
+        <div class="row fill"><input type="text" id="pickerSearch" placeholder="Search agent, ID or team..."><select id="pickerDeptFilter"></select></div>
         <div class="row">
           <button class="btn-sm" id="selectShownBtn" type="button">Select Shown</button>
           <button class="btn-sm" id="clearSelBtn" type="button">Clear Selection</button>
-          <span class="muted" id="pickerCount" style="flex:1;"></span>
+          <span class="muted" id="pickerCount" style="flex:1"></span>
         </div>
         <div class="picker" id="pickerList"></div>
-        <div class="row">
+        <div class="row fill">
           <select id="transferDeptSelect"></select>
           <button class="btn-sm acc" id="moveBtn" type="button">Move Selected</button>
-          <button class="btn-sm good" id="seniorBtn" type="button">Toggle ⭐ Senior</button>
+          <button class="btn-sm gold" id="markSeniorBtn" type="button">⭐ Mark Senior</button>
+          <button class="btn-sm" id="markJuniorBtn" type="button">Mark Junior</button>
           <button class="btn-sm danger" id="removeSelBtn" type="button">Remove Selected</button>
         </div>
       </div>
@@ -170,72 +43,64 @@
 
       <div class="box">
         <h3>4. Bulk Replace Agents (Old => New)</h3>
-        <textarea id="bulkReplaceText" rows="4" placeholder="Md. Old Person => Md. New Person&#10;C10 Old Name => C11 New Name"></textarea>
-        <label class="check"><input type="checkbox" id="inheritSenior" checked> Replacement inherits ⭐ senior status</label>
+        <textarea id="bulkReplaceText" rows="4" placeholder="C10 Old Name => C11 New Name&#10;Md. Old Person => Md. New Person"></textarea>
+        <label class="check"><input type="checkbox" id="inheritSenior" checked> Replacement inherits senior status</label>
         <div class="row"><button class="btn-sm acc nofill" id="replaceBtn" type="button">Replace Agents</button></div>
       </div>
 
       <div class="box">
-        <h3>5. Tools</h3>
+        <h3>5. Senior List (paste to set)</h3>
+        <p class="hint">Paste seniors in any format, including headers such as "Web Team Senior Agent". Agents are matched by ID first, then by name.</p>
+        <textarea id="seniorPasteText" rows="5" placeholder="Web Team Senior Agent&#10;ID405	Md Fardin Hasan&#10;ID550	Seaim Rahman"></textarea>
+        <label class="check"><input type="checkbox" id="seniorReplaceAll" checked> Replace the whole senior list (untick to only add)</label>
+        <div class="row"><button class="btn-sm gold nofill" id="seniorApplyBtn" type="button">Apply Senior List</button></div>
+      </div>
+
+      <div class="box">
+        <h3>6. Tools</h3>
         <div class="row">
-          <button class="btn-sm acc" id="shuffleOrderBtn" type="button">Shuffle Agent List Order</button>
-          <button class="btn-sm danger" id="resetBtn" type="button">Reset to Default List</button>
+          <button class="btn-sm acc" id="shuffleOrderBtn" type="button">Shuffle Directory Order</button>
+          <button class="btn-sm ok" id="backupBtn" type="button">⬇ Backup (JSON)</button>
+          <button class="btn-sm ok" id="restoreBtn" type="button">⬆ Restore Backup</button>
+          <button class="btn-sm" id="recoverBtn" type="button">Recover old data</button>
+          <button class="btn-sm danger" id="resetBtn" type="button">Reset to Default</button>
+          <input type="file" id="restoreFile" accept=".json,application/json" class="hidden">
         </div>
       </div>
     </div>
 
-    <div class="row between" style="margin-top:16px;">
-      <label style="margin:0;">Agent List (Viewer / Importer)</label>
+    <div class="row between" style="margin-top:16px">
+      <label style="margin:0">Directory (Viewer / Importer)</label>
       <span class="dirty hidden" id="dirtyBadge">Unsaved edits</span>
     </div>
-    <textarea id="agentData" rows="14" spellcheck="false" placeholder="Team name on the first line of each block, agents below it. Blank line separates teams."></textarea>
+    <textarea id="agentData" rows="14" spellcheck="false" placeholder="Team name on the first line of each block, agents below it. A blank line separates teams."></textarea>
     <div class="row between">
       <span class="muted" id="dbStats"></span>
-      <div class="row" style="margin-top:0;">
+      <div class="row" style="margin-top:0">
         <button class="btn-sm nofill" id="discardBtn" type="button">Discard Edits</button>
         <button class="btn-sm good nofill" id="saveTextBtn" type="button">Save Textarea</button>
       </div>
     </div>
   </section>
-
-  <!-- Output -->
-  <section class="card hidden" id="outputCard">
-    <div id="exportArea">
-      <div class="row between" style="margin-top:0;">
-        <label style="margin:0;">Schedule Output (Randomized)</label>
-        <span class="count-badge" id="totalBadge">Total: 0</span>
-      </div>
-
-      <div class="sub">Overall Team Breakdown</div>
-      <div class="badges" id="teamBadges"></div>
-      <div id="dupeNote"></div>
-
-      <div class="sub">Slot-wise Breakdown (team counts and total per slot)</div>
-      <div class="slots-grid" id="slotCards"></div>
-
-      <div class="sub">Slot × Team Matrix</div>
-      <div class="table-wrap" id="matrixWrap"></div>
-
-      <pre id="outputText"></pre>
-    </div>
-
-    <div class="row" style="margin-top:14px;">
-      <input type="text" id="outputSearch" placeholder="Search agent name in schedule...">
-      <label class="check nofill" style="margin:0;"><input type="checkbox" id="showIds" checked> Show IDs</label>
-    </div>
-    <div class="row actions">
-      <button class="btn-copy" id="copyBtn" type="button">Copy Text</button>
-      <button class="btn-dl" id="dlBtn" type="button">Download .txt</button>
-      <button class="btn-img" id="pngBtn" type="button">Export PNG</button>
-    </div>
-  </section>
 </div>
 
+<div class="modal hidden" id="modal">
+  <div class="modal-box">
+    <h3 id="modalTitle"></h3>
+    <div id="modalBody"></div>
+    <div class="modal-actions">
+      <button class="btn-sm" id="modalCancel" type="button">Cancel</button>
+      <button class="btn-sm ok" id="modalOk" type="button">OK</button>
+    </div>
+  </div>
+</div>
 <div id="toast"></div>
 
 <script>
 /* ===================== CONSTANTS ===================== */
-const STORAGE = { db: 'bsg_masterDatabase_v5', seniors: 'bsg_seniorKeys_v5', theme: 'bsg_theme_v5' };
+const STORAGE = { db:'bsg_db_v6', sen:'bsg_sen_v6', theme:'bsg_theme_v5', roster:'bsg_roster_v6', mode:'bsg_mode_v6', old:'bsg_masterDatabase_v5' };
+const PALETTE = ['#8b5cf6','#3b82f6','#10b981','#f59e0b','#ec4899','#06b6d4','#84cc16','#f97316','#a78bfa','#14b8a6'];
+const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 
 const DEFAULT_TEXT = `Message Team
 ID501 Md. Lehadujjaman
@@ -349,674 +214,656 @@ ID411 Tamanna Sanjida
 C55 Rakib Hossen Hawlader
 C56 Himel Howlader`;
 
-const DEFAULT_SENIOR_NAMES = [
-  "Md. Lehadujjaman", "Md Amir Hossen", "Md Zihad Hossain", "Ujjal Ullah Papon", "Alifur Rahman",
-  "Rezaul Hossain Rakib", "MD. Tasin Hossain Hawlader Rinku", "Md Aminul Islam", "Md Irfan Ahmed",
-  "Md Fardin Hasan", "Seaim Rahman", "Rafid Bin Karim"
-];
-
-const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+// Default seniors (by ID): Web 6 + Call 8 + Message 4 = 18
+const DEFAULT_SENIOR_IDS = ['ID405','ID550','ID556','ID671','ID707','ID753','ID521','ID669','ID688','ID721','ID726','ID777','ID778','ID780','ID501','ID524','ID785','C33'];
+const defaultSeniors = () => new Set(DEFAULT_SENIOR_IDS.map(i => 'id:' + i));
 
 /* ===================== STATE ===================== */
-let masterDatabase = {};          // immutable: replaced, never mutated in place
-let seniorSet = new Set();        // person keys flagged as senior
-let textDirty = false;
-let selected = new Set();         // selection keys: JSON.stringify([team, index])
-let shownPickerKeys = [];
-let lastResult = null;
+let db = {}, seniors = new Set(), index = null, history = [];
+let selected = new Set(), shownKeys = [], textDirty = false;
+let mode = 'roster', currentRoster = { people: [], unknown: [], dupes: [], ambiguous: [], lines: 0 };
+let lastResult = null, drag = null, modalResolve = null;
 
 /* ===================== UTILITIES ===================== */
 const $ = id => document.getElementById(id);
 const hasOwn = (o, k) => Object.prototype.hasOwnProperty.call(o, k);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const cleanName = s => String(s).replace(/\s+/g, ' ').trim();
-const ID_PREFIX = /^[A-Za-z]{1,3}\d{1,5}\s+/;
+const clean = s => String(s).replace(/\s+/g, ' ').trim();
+const ID_RE = /^([A-Za-z]{1,3}\d{1,5})\s+(.+)$/;
+const nameKey = s => String(s).toLowerCase().replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
+function splitLabel(label) { const l = clean(label), m = l.match(ID_RE); return m ? { id: m[1].toUpperCase(), name: m[2] } : { id: '', name: l }; }
+function ident(label) { const s = splitLabel(label); return s.id ? 'id:' + s.id : 'n:' + nameKey(s.name); }
+function matchSpec(label, spec) { const a = splitLabel(label), b = splitLabel(spec); return b.id ? a.id === b.id : nameKey(a.name) === nameKey(b.name); }
+function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function cloneDb(d) { const o = {}; Object.keys(d).forEach(k => { o[k] = [...d[k]]; }); return o; }
+function fmtTime(m) { m = ((m % 1440) + 1440) % 1440; let h = Math.floor(m / 60); const mm = m % 60, ap = h >= 12 ? 'PM' : 'AM'; h = h % 12 || 12; return `${h}:${String(mm).padStart(2, '0')}${ap}`; }
+const ul = items => `<ul>${items.map(i => `<li>${esc(i)}</li>`).join('')}</ul>`;
+function toast(msg) { const el = $('toast'); el.textContent = msg; el.classList.add('show'); clearTimeout(toast._t); toast._t = setTimeout(() => el.classList.remove('show'), 2800); }
 
-// Stable identity: strips ID prefix, lowercases, removes punctuation
-function personKey(label) {
-  return String(label).replace(ID_PREFIX, '').toLowerCase()
-    .replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
+/* ===================== MODAL ===================== */
+function ask(title, html, okText = 'OK', showCancel = true) {
+  if (modalResolve) modalResolve(false);
+  return new Promise(res => {
+    modalResolve = res;
+    $('modalTitle').textContent = title;
+    $('modalBody').innerHTML = html;
+    $('modalOk').textContent = okText;
+    $('modalCancel').classList.toggle('hidden', !showCancel);
+    $('modal').classList.remove('hidden');
+    $('modalOk').focus();
+  });
 }
-function displayName(label) { return String(label).replace(ID_PREFIX, '').trim(); }
+const notify = (title, html) => ask(title, html, 'OK', false);
+function closeModal(v) { $('modal').classList.add('hidden'); const r = modalResolve; modalResolve = null; if (r) r(v); }
 
-function shuffle(arr) {
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  }
-  return arr;
-}
-
-function fmtTime(mins) {
-  mins = ((mins % 1440) + 1440) % 1440;
-  let h = Math.floor(mins / 60);
-  const m = mins % 60;
-  const ap = h >= 12 ? 'PM' : 'AM';
-  h = h % 12 || 12;
-  return `${h}:${String(m).padStart(2, '0')}${ap}`;
-}
-
-function deepFreeze(o) {
-  if (o && typeof o === 'object' && !Object.isFrozen(o)) {
-    Object.values(o).forEach(deepFreeze);
-    Object.freeze(o);
-  }
-  return o;
-}
-
-function cloneDb(db) {
-  const out = {};
-  Object.keys(db).forEach(k => { out[k] = [...db[k]]; });
-  return out;
-}
-
-function toast(msg) {
-  const el = $('toast');
-  el.textContent = msg;
-  el.classList.add('show');
-  clearTimeout(toast._t);
-  toast._t = setTimeout(() => el.classList.remove('show'), 2600);
-}
-
-/* ===================== PARSER (textarea <-> database) ===================== */
-// Blocks are separated by blank (or whitespace-only) lines.
-// First line of each block = team name (a sheet header "ID<TAB>Name" is also accepted).
-// Remaining lines = agents. Tabs/extra spaces are normalised.
+/* ===================== PARSER ===================== */
 function parseText(text) {
-  const blocks = [];
-  let cur = [];
+  const blocks = []; let cur = [];
   String(text).replace(/\r\n?/g, '\n').split('\n').forEach(raw => {
-    const line = raw.replace(/\t/g, ' ').replace(/\s+/g, ' ').trim();
+    const line = clean(raw.replace(/\t/g, ' '));
     if (!line) { if (cur.length) { blocks.push(cur); cur = []; } return; }
     cur.push(line);
   });
   if (cur.length) blocks.push(cur);
 
-  const db = {};
-  const warnings = [];
-  let agents = 0;
-
+  const out = {}, warnings = []; let agents = 0;
   blocks.forEach((block, bi) => {
-    let header = block[0];
+    let header = block[0], lines = block.slice(1);
     const m = header.match(/^ID\s+(.+)$/i);
-    if (m) header = m[1].trim();
-    if (!header || /^ID$/i.test(header)) {
-      warnings.push(`Block ${bi + 1}: missing team name (skipped)`);
-      return;
+    if (m) header = clean(m[1]);
+    if (ID_RE.test(block[0]) && !m) {
+      header = 'Unassigned'; lines = block;
+      warnings.push(`Block ${bi + 1} starts with an agent line (no team header). All ${block.length} agent(s) were put in "Unassigned". Add a team name line above them to fix this.`);
     }
-    if (header.length > 60) {
-      warnings.push(`"${header.slice(0, 30)}...": team name too long (skipped)`);
-      return;
-    }
-    if (!hasOwn(db, header)) db[header] = [];
-    block.slice(1).forEach(line => {
-      const k = personKey(line);
-      if (!k) { warnings.push(`Empty agent line in ${header} (skipped)`); return; }
-      if (db[header].some(a => personKey(a) === k)) {
-        warnings.push(`"${line}" is listed twice in ${header} (kept once)`);
-        return;
-      }
-      db[header].push(line);
-      agents++;
+    if (!header || header.length > 60) { warnings.push(`Block ${bi + 1}: invalid team name (skipped)`); return; }
+    if (!hasOwn(out, header)) out[header] = [];
+    lines.forEach(line => {
+      const id = ident(line);
+      if (!nameKey(splitLabel(line).name)) return;
+      if (out[header].some(a => ident(a) === id)) { warnings.push(`"${line}" is listed twice in ${header} (kept once)`); return; }
+      out[header].push(line); agents++;
     });
   });
+  return { db: out, warnings, teams: Object.keys(out).length, agents };
+}
+const serializeDb = d => Object.keys(d).map(t => [t, ...d[t]].join('\n')).join('\n\n');
+const isValidDb = p => p && typeof p === 'object' && !Array.isArray(p) && Object.keys(p).every(k => k.trim() && Array.isArray(p[k]) && p[k].every(x => typeof x === 'string'));
 
-  return { db, warnings, teams: Object.keys(db).length, agents };
+/* ===================== INDEX (people lookup) ===================== */
+function buildIndex(d) {
+  const people = [], byId = new Map(), byKey = new Map(), seen = new Set(), dupes = [];
+  Object.keys(d).forEach(team => d[team].forEach(label => {
+    const s = splitLabel(label), id = ident(label);
+    if (seen.has(id)) { dupes.push({ name: s.name, team }); return; }
+    seen.add(id);
+    const p = { label: clean(label), id: s.id, name: s.name, key: nameKey(s.name), team, ident: id, known: true };
+    people.push(p);
+    if (s.id) byId.set(s.id, p);
+    if (!byKey.has(p.key)) byKey.set(p.key, []);
+    byKey.get(p.key).push(p);
+  }));
+  return { people, byId, byKey, dupes };
 }
 
-function serializeDb(db) {
-  return Object.keys(db).map(team => [team, ...db[team]].join('\n')).join('\n\n');
-}
-
-function isValidDb(p) {
-  return p && typeof p === 'object' && !Array.isArray(p) &&
-    Object.keys(p).every(k => k.trim() && Array.isArray(p[k]) && p[k].every(x => typeof x === 'string'));
-}
-
-/* ===================== PERSISTENCE ===================== */
+/* ===================== PERSISTENCE / HISTORY ===================== */
 function loadDb() {
-  const raw = localStorage.getItem(STORAGE.db);
-  if (raw) {
-    try {
-      const parsed = JSON.parse(raw);
-      if (isValidDb(parsed)) return deepFreeze(cloneDb(parsed));
-    } catch (e) { /* fall through */ }
-    localStorage.setItem(STORAGE.db + '_backup_' + Date.now(), raw);
-  }
-  return deepFreeze(parseText(DEFAULT_TEXT).db);
+  try { const p = JSON.parse(localStorage.getItem(STORAGE.db) || 'null'); if (isValidDb(p)) return cloneDb(p); } catch (e) {}
+  return parseText(DEFAULT_TEXT).db;
 }
-
 function loadSeniors() {
-  try {
-    const arr = JSON.parse(localStorage.getItem(STORAGE.seniors) || 'null');
-    if (Array.isArray(arr) && arr.every(x => typeof x === 'string')) return new Set(arr);
-  } catch (e) { /* ignore */ }
-  return new Set(DEFAULT_SENIOR_NAMES.map(personKey));
+  try { const a = JSON.parse(localStorage.getItem(STORAGE.sen) || 'null'); if (Array.isArray(a) && a.every(x => /^(id|n):/.test(x))) return new Set(a); } catch (e) {}
+  return defaultSeniors();
 }
-
-function saveSeniors() {
-  localStorage.setItem(STORAGE.seniors, JSON.stringify([...seniorSet]));
+function persist() {
+  try { localStorage.setItem(STORAGE.db, JSON.stringify(db)); localStorage.setItem(STORAGE.sen, JSON.stringify([...seniors])); }
+  catch (e) { toast('Could not save to browser storage'); }
 }
-
-function commitDb(db, msg) {
-  masterDatabase = deepFreeze(cloneDb(db));
-  localStorage.setItem(STORAGE.db, JSON.stringify(masterDatabase));
-  saveSeniors();
-  refreshUI();
-  if (msg) toast(msg);
+function pushHistory() { history.push({ db: cloneDb(db), sen: [...seniors] }); if (history.length > 30) history.shift(); $('undoBtn').disabled = false; }
+function undo() {
+  const h = history.pop();
+  if (!h) return toast('Nothing to undo');
+  db = cloneDb(h.db); seniors = new Set(h.sen); selected.clear(); setDirty(false); persist(); refreshAll();
+  $('undoBtn').disabled = !history.length; toast('Undone');
 }
-
-/* Every panel action goes through mutate(): it works on a fresh draft copy,
-   the committed database is only replaced if the action succeeds. */
-function mutate(fn) {
-  if (textDirty && !confirm('You have unsaved textarea edits. Continue and discard them?')) return;
-  const draft = cloneDb(masterDatabase);
-  const sen = new Set(seniorSet);
-  const msg = fn(draft, sen);
+function commit(newDb, msg) { db = cloneDb(newDb); persist(); refreshAll(); if (msg) toast(msg); }
+async function mutate(fn) {
+  if (textDirty && !(await ask('Unsaved edits', '<p>You have unsaved edits in the directory text box. Continue and discard them?</p>', 'Discard & continue'))) return;
+  const draft = cloneDb(db), sen = new Set(seniors);
+  const msg = await fn(draft, sen);
   if (!msg) return;
-  setDirty(false);
-  seniorSet = sen;
-  selected.clear();
-  commitDb(draft, msg);
+  pushHistory(); setDirty(false); seniors = sen; selected.clear(); commit(draft, msg);
 }
 
 /* ===================== UI REFRESH ===================== */
-function setDirty(v) {
-  textDirty = v;
-  $('dirtyBadge').classList.toggle('hidden', !v);
-}
-
+function setDirty(v) { textDirty = v; $('dirtyBadge').classList.toggle('hidden', !v); }
 function fillSelect(id, teams, allLabel) {
-  const sel = $(id);
-  const prev = sel.value;
-  sel.innerHTML = '';
+  const sel = $(id), prev = sel.value; sel.innerHTML = '';
   if (allLabel !== undefined) sel.add(new Option(allLabel, ''));
   teams.forEach(t => sel.add(new Option(t, t)));
   if ([...sel.options].some(o => o.value === prev)) sel.value = prev;
 }
-
-function refreshUI() {
-  const teams = Object.keys(masterDatabase);
-  fillSelect('renameDeptSelect', teams);
-  fillSelect('deleteDeptSelect', teams);
-  fillSelect('addTargetSelect', teams);
-  fillSelect('transferDeptSelect', teams);
+function refreshAll() {
+  index = buildIndex(db);
+  const teams = Object.keys(db);
+  ['renameDeptSelect', 'deleteDeptSelect', 'addTargetSelect', 'transferDeptSelect'].forEach(id => fillSelect(id, teams));
   fillSelect('pickerDeptFilter', teams, 'All teams');
   renderPicker();
   if (!textDirty) renderTextarea();
   renderStats();
+  refreshRoster();
 }
-
-function renderTextarea() {
-  $('agentData').value = serializeDb(masterDatabase);
-  setDirty(false);
-}
-
+function renderTextarea() { $('agentData').value = serializeDb(db); setDirty(false); }
 function renderStats() {
-  let entries = 0;
-  const keys = new Set();
-  Object.values(masterDatabase).forEach(arr => arr.forEach(a => { entries++; keys.add(personKey(a)); }));
-  const seniors = [...keys].filter(k => seniorSet.has(k)).length;
-  const teams = Object.keys(masterDatabase).length;
-  $('dbStats').textContent = `${teams} teams · ${entries} entries · ${keys.size} unique people · ${seniors} seniors`;
+  const sc = index.people.filter(p => seniors.has(p.ident)).length, teams = Object.keys(db).length;
+  const entries = index.people.length + index.dupes.length;
+  $('dbStats').textContent = `${teams} teams · ${entries} entries · ${index.people.length} unique people · ${sc} seniors`;
+  $('topStats').textContent = `${teams} teams · ${index.people.length} agents · ⭐ ${sc}`;
 }
-
 function renderPicker() {
-  const q = $('pickerSearch').value.trim().toLowerCase();
-  const df = $('pickerDeptFilter').value;
-  shownPickerKeys = [];
-  let html = '';
-  Object.keys(masterDatabase).forEach(team => {
+  const q = $('pickerSearch').value.trim().toLowerCase(), df = $('pickerDeptFilter').value;
+  shownKeys = []; let html = '';
+  Object.keys(db).forEach(team => {
     if (df && df !== team) return;
-    masterDatabase[team].forEach((label, i) => {
+    db[team].forEach((label, i) => {
       if (q && !label.toLowerCase().includes(q) && !team.toLowerCase().includes(q)) return;
-      const key = JSON.stringify([team, i]);
-      shownPickerKeys.push(key);
-      const star = seniorSet.has(personKey(label)) ? '⭐ ' : '';
+      const key = JSON.stringify([team, i]); shownKeys.push(key);
       html += `<label class="pick-row"><input type="checkbox" data-key="${esc(key)}" ${selected.has(key) ? 'checked' : ''}>` +
-              `<span class="pick-name">${star}${esc(label)}</span><span class="pick-dept">${esc(team)}</span></label>`;
+        `<span class="pick-star">${seniors.has(ident(label)) ? '⭐' : ''}</span><span class="pick-name">${esc(label)}</span><span class="pick-dept">${esc(team)}</span></label>`;
     });
   });
   $('pickerList').innerHTML = html || '<div class="empty">No agents match.</div>';
-  $('pickerCount').textContent = `${selected.size} selected · ${shownPickerKeys.length} shown`;
+  updatePickerCount();
 }
-
+const updatePickerCount = () => { $('pickerCount').textContent = `${selected.size} selected · ${shownKeys.length} shown`; };
 function selectedEntries() {
-  return [...selected].map(k => JSON.parse(k))
-    .filter(([team, i]) => hasOwn(masterDatabase, team) && masterDatabase[team][i] !== undefined);
+  return [...selected].map(k => JSON.parse(k)).filter(([t, i]) => hasOwn(db, t) && db[t][i] !== undefined);
 }
-
-/* ===================== VALIDATION ===================== */
-function validateTeamName(name, db) {
+function validateTeamName(name, d) {
   if (!name) return 'Team name cannot be empty.';
   if (name.length > 60) return 'Team name is too long (max 60 characters).';
   if (/^ID(\s|$)/i.test(name)) return "Team name cannot start with 'ID ' (reserved for sheet headers).";
-  if (Object.keys(db).some(k => k.toLowerCase() === name.toLowerCase())) return 'A team with this name already exists.';
+  if (ID_RE.test(name)) return 'This looks like an agent line (ID + name), not a team name.';
+  if (Object.keys(d).some(k => k.toLowerCase() === name.toLowerCase())) return 'A team with this name already exists.';
   return '';
 }
 
-/* ===================== PANEL ACTIONS ===================== */
-function addDept() {
-  const name = cleanName($('newDeptName').value);
-  const err = validateTeamName(name, masterDatabase);
-  if (err) return alert(err);
-  mutate(db => { db[name] = []; $('newDeptName').value = ''; return `Team added: ${name}`; });
+/* ===================== DIRECTORY ACTIONS ===================== */
+async function addDept() {
+  const name = clean($('newDeptName').value), err = validateTeamName(name, db);
+  if (err) return notify('Cannot add team', `<p>${esc(err)}</p>`);
+  mutate(d => { d[name] = []; $('newDeptName').value = ''; return `Team added: ${name}`; });
 }
-
-function renameDept() {
-  const old = $('renameDeptSelect').value;
-  const nu = cleanName($('renameDeptInput').value);
+async function renameDept() {
+  const old = $('renameDeptSelect').value, nu = clean($('renameDeptInput').value);
   if (!old) return;
-  const err = validateTeamName(nu, masterDatabase);
-  if (err) return alert(err);
-  mutate(db => {
-    const entries = Object.entries(db);
-    entries.forEach(([k]) => delete db[k]);
-    entries.forEach(([k, v]) => { db[k === old ? nu : k] = v; });   // keeps team order
-    $('renameDeptInput').value = '';
-    return `Renamed "${old}" to "${nu}"`;
+  const err = validateTeamName(nu, db);
+  if (err) return notify('Cannot rename team', `<p>${esc(err)}</p>`);
+  mutate(d => {
+    const e = Object.entries(d); e.forEach(([k]) => delete d[k]);
+    e.forEach(([k, v]) => { d[k === old ? nu : k] = v; });
+    $('renameDeptInput').value = ''; return `Renamed "${old}" to "${nu}"`;
   });
 }
-
-function deleteDept() {
-  const team = $('deleteDeptSelect').value;
-  if (!team) return;
-  const n = masterDatabase[team].length;
-  if (!confirm(`Delete team "${team}" and its ${n} agent(s)?`)) return;
-  mutate(db => { delete db[team]; return `Team deleted: ${team}`; });
+async function deleteDept() {
+  const team = $('deleteDeptSelect').value; if (!team) return;
+  if (!(await ask('Delete team', `<p>Delete team <b>${esc(team)}</b> and its ${db[team].length} agent(s)? You can undo this.</p>`, 'Delete'))) return;
+  mutate(d => { delete d[team]; return `Team deleted: ${team}`; });
 }
-
-function bulkAdd() {
+async function bulkAdd() {
   const team = $('addTargetSelect').value;
-  const lines = $('bulkAddText').value.split('\n').map(cleanName).filter(Boolean);
-  if (!team) return alert('Create a team first.');
-  if (!lines.length) return alert('Enter at least one agent name.');
-  mutate(db => {
-    let added = 0;
-    const skipped = [];
-    lines.forEach(line => {
-      const k = personKey(line);
-      if (!k) return;
-      if (db[team].some(a => personKey(a) === k)) { skipped.push(displayName(line)); return; }
-      db[team].push(line);
-      added++;
+  const lines = $('bulkAddText').value.split('\n').map(clean).filter(Boolean);
+  if (!team) return notify('No team', '<p>Create a team first.</p>');
+  if (!lines.length) return notify('Nothing to add', '<p>Enter at least one agent name.</p>');
+  mutate(async d => {
+    let added = 0; const skipped = [];
+    lines.forEach(l => {
+      const id = ident(l);
+      if (d[team].some(a => ident(a) === id)) { skipped.push(splitLabel(l).name); return; }
+      d[team].push(l); added++;
     });
     $('bulkAddText').value = '';
-    if (skipped.length) alert(`Skipped (already in ${team}):\n${skipped.join('\n')}`);
-    return `Added ${added} agent(s) to ${team}`;
+    if (skipped.length) await notify('Skipped', `<p>Already in ${esc(team)}:</p>${ul(skipped)}`);
+    return added || skipped.length ? `Added ${added} agent(s) to ${team}` : null;
   });
 }
-
-function moveSelected() {
-  const entries = selectedEntries();
-  const target = $('transferDeptSelect').value;
-  if (!entries.length) return alert('Select agents first.');
-  if (!target) return alert('Select a target team.');
-  mutate(db => {
-    const pending = [];
-    let moved = 0, dup = 0;
+async function moveSelected() {
+  const entries = selectedEntries(), target = $('transferDeptSelect').value;
+  if (!entries.length) return notify('Select agents', '<p>Select agents first.</p>');
+  if (!target) return notify('Select team', '<p>Select a target team.</p>');
+  mutate(d => {
+    const pending = []; let moved = 0, dup = 0;
     [...entries].sort((a, b) => b[1] - a[1]).forEach(([team, i]) => {
       if (team === target) return;
-      const label = db[team][i];
-      db[team].splice(i, 1);
-      const k = personKey(label);
-      if (db[target].some(a => personKey(a) === k) || pending.some(p => personKey(p) === k)) { dup++; return; }
-      pending.push(label);
-      moved++;
+      const label = d[team][i]; d[team].splice(i, 1);
+      const id = ident(label);
+      if (d[target].some(a => ident(a) === id) || pending.some(p => ident(p) === id)) { dup++; return; }
+      pending.push(label); moved++;
     });
-    db[target].push(...pending);
-    return `Moved ${moved} agent(s) to ${target}${dup ? ` (${dup} already in that team)` : ''}`;
+    d[target].push(...pending);
+    return `Moved ${moved} agent(s) to ${target}${dup ? ` (${dup} already there)` : ''}`;
   });
 }
-
-function removeSelected() {
+async function removeSelected() {
   const entries = selectedEntries();
-  if (!entries.length) return alert('Select agents first.');
-  if (!confirm(`Remove ${entries.length} selected agent(s) from the database?`)) return;
-  mutate(db => {
-    [...entries].sort((a, b) => b[1] - a[1]).forEach(([team, i]) => db[team].splice(i, 1));
-    return `Removed ${entries.length} agent(s)`;
-  });
+  if (!entries.length) return notify('Select agents', '<p>Select agents first.</p>');
+  if (!(await ask('Remove agents', `<p>Remove ${entries.length} selected agent(s) from the directory? You can undo this.</p>`, 'Remove'))) return;
+  mutate(d => { [...entries].sort((a, b) => b[1] - a[1]).forEach(([t, i]) => d[t].splice(i, 1)); return `Removed ${entries.length} agent(s)`; });
 }
-
-function toggleSeniorSelected() {
+async function setSeniorSelected(flag) {
   const entries = selectedEntries();
-  if (!entries.length) return alert('Select agents first.');
-  const keys = entries.map(([t, i]) => personKey(masterDatabase[t][i]));
-  const allSenior = keys.every(k => seniorSet.has(k));
-  const next = new Set(seniorSet);
-  keys.forEach(k => allSenior ? next.delete(k) : next.add(k));
-  seniorSet = next;
-  selected.clear();
-  saveSeniors();
-  refreshUI();
-  toast(allSenior ? 'Senior status removed' : 'Marked as ⭐ senior');
+  if (!entries.length) return notify('Select agents', '<p>Select agents first.</p>');
+  pushHistory();
+  entries.forEach(([t, i]) => { const id = ident(db[t][i]); flag ? seniors.add(id) : seniors.delete(id); });
+  selected.clear(); persist(); refreshAll();
+  toast(flag ? `${entries.length} marked Senior` : `${entries.length} marked Junior`);
 }
-
-function bulkReplace() {
+async function toggleSeniorIdent(id) {
+  pushHistory(); seniors.has(id) ? seniors.delete(id) : seniors.add(id); persist(); refreshAll();
+}
+async function bulkReplace() {
   const lines = $('bulkReplaceText').value.split('\n').map(l => l.trim()).filter(Boolean);
   const pairs = [], bad = [];
   lines.forEach(l => {
-    const parts = l.split('=>');
-    if (parts.length !== 2 || !cleanName(parts[0]) || !cleanName(parts[1])) bad.push(l);
-    else pairs.push([cleanName(parts[0]), cleanName(parts[1])]);
+    const p = l.split('=>');
+    if (p.length !== 2 || !clean(p[0]) || !clean(p[1])) bad.push(l); else pairs.push([clean(p[0]), clean(p[1])]);
   });
-  if (!pairs.length) return alert('Use the format:  Old Name => New Name  (one per line)');
-  if (bad.length && !confirm(`These lines are invalid and will be ignored:\n${bad.join('\n')}\n\nContinue?`)) return;
+  if (!pairs.length) return notify('Format', '<p>Use: <code>Old Name => New Name</code> (one per line).</p>');
+  if (bad.length && !(await ask('Invalid lines', `<p>These lines will be ignored:</p>${ul(bad)}`, 'Continue'))) return;
   const inherit = $('inheritSenior').checked;
-  const notFound = [];
-  mutate((db, sen) => {
-    let total = 0;
+  mutate(async (d, sen) => {
+    let total = 0; const notFound = [];
     pairs.forEach(([oldN, newN]) => {
-      const ok = personKey(oldN), nk = personKey(newN);
       let n = 0;
-      Object.keys(db).forEach(team => {
-        db[team] = db[team].map(a => { if (personKey(a) === ok) { n++; return newN; } return a; });
+      Object.keys(d).forEach(team => {
+        d[team] = d[team].map(a => {
+          if (!matchSpec(a, oldN)) return a;
+          n++;
+          const oi = ident(a);
+          if (inherit && sen.has(oi)) { sen.delete(oi); sen.add(ident(newN)); }
+          return newN;
+        });
       });
-      if (!n) { notFound.push(oldN); return; }
-      total += n;
-      if (inherit && sen.has(ok)) { sen.delete(ok); sen.add(nk); }
+      if (!n) notFound.push(oldN); else total += n;
     });
-    if (!total) { alert('No matching agents found for the given names.'); return null; }
+    if (!total) { await notify('Nothing replaced', '<p>No matching agents found.</p>'); return null; }
     $('bulkReplaceText').value = '';
-    if (notFound.length) alert(`Not found in database (ignored):\n${notFound.join('\n')}`);
-    return `Replaced ${total} agent entr${total === 1 ? 'y' : 'ies'}`;
+    if (notFound.length) await notify('Not found', `<p>Ignored (not in directory):</p>${ul(notFound)}`);
+    return `Replaced ${total} entr${total === 1 ? 'y' : 'ies'}`;
   });
 }
-
-function shuffleOrder() {
-  mutate(db => { Object.keys(db).forEach(t => shuffle(db[t])); return 'Agent list order shuffled'; });
+async function applySeniorList() {
+  const text = $('seniorPasteText').value;
+  if (!clean(text)) return notify('Empty', '<p>Paste the senior list first.</p>');
+  const found = new Set(), missing = [], teamNames = Object.keys(db).map(t => t.toLowerCase());
+  text.replace(/\r\n?/g, '\n').split('\n').forEach(raw => {
+    const line = clean(raw.replace(/\t/g, ' ')); if (!line) return;
+    const s = splitLabel(line); let p = null;
+    if (s.id) p = index.byId.get(s.id);
+    else {
+      if (/senior/i.test(line) || teamNames.includes(line.toLowerCase())) return; // header
+      p = (index.byKey.get(nameKey(s.name)) || [])[0];
+    }
+    p ? found.add(p.ident) : missing.push(line);
+  });
+  if (!found.size) return notify('No match', `<p>No agents from this list were found in the directory.</p>${missing.length ? ul(missing) : ''}`);
+  const replaceAll = $('seniorReplaceAll').checked;
+  const ok = await ask('Apply senior list', `<p><b>${found.size}</b> senior agent(s) matched. ${replaceAll ? 'The whole senior list will be replaced.' : 'They will be added to the current seniors.'}</p>${missing.length ? `<p>Not found (ignored):</p>${ul(missing)}` : ''}`, 'Apply');
+  if (!ok) return;
+  pushHistory();
+  seniors = replaceAll ? new Set(found) : new Set([...seniors, ...found]);
+  $('seniorPasteText').value = ''; persist(); refreshAll(); toast(`Seniors updated: ${found.size}`);
 }
-
-function resetDefault() {
-  if (!confirm('Reset the database and senior list to the built-in default? Current data will be lost.')) return;
-  setDirty(false);
-  seniorSet = new Set(DEFAULT_SENIOR_NAMES.map(personKey));
-  selected.clear();
-  commitDb(parseText(DEFAULT_TEXT).db, 'Default list restored');
+function shuffleOrder() { mutate(d => { Object.keys(d).forEach(t => shuffle(d[t])); return 'Directory order shuffled'; }); }
+async function resetDefault() {
+  if (!(await ask('Reset directory', '<p>Reset the directory and senior list to the built-in default? You can undo this.</p>', 'Reset'))) return;
+  pushHistory(); setDirty(false); seniors = defaultSeniors(); selected.clear(); commit(parseText(DEFAULT_TEXT).db, 'Default list restored');
 }
-
-/* ===================== TEXTAREA ===================== */
-function saveTextarea() {
+function backup() {
+  const data = { app: 'break-slot-generator', version: 6, db, seniors: [...seniors], roster: $('rosterText').value };
+  const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }));
+  const a = document.createElement('a'); a.href = url; a.download = `break-generator-backup-${new Date().toISOString().slice(0, 10)}.json`;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000); toast('Backup downloaded');
+}
+function restoreFile(file) {
+  if (!file) return;
+  const r = new FileReader();
+  r.onload = async () => {
+    try {
+      const o = JSON.parse(r.result);
+      if (!isValidDb(o.db) || !Array.isArray(o.seniors)) throw new Error('bad');
+      const n = Object.values(o.db).reduce((a, b) => a + b.length, 0);
+      if (!(await ask('Restore backup', `<p>Restore <b>${Object.keys(o.db).length}</b> teams and <b>${n}</b> agent entries? Current data will be replaced (you can undo).</p>`, 'Restore'))) return;
+      pushHistory(); seniors = new Set(o.seniors.filter(x => /^(id|n):/.test(x))); setDirty(false);
+      if (typeof o.roster === 'string') { $('rosterText').value = o.roster; localStorage.setItem(STORAGE.roster, o.roster); }
+      commit(o.db, 'Backup restored');
+    } catch (e) { notify('Invalid file', '<p>This is not a valid backup file.</p>'); }
+    $('restoreFile').value = '';
+  };
+  r.readAsText(file);
+}
+async function recoverOld() {
+  let o = null;
+  try { o = JSON.parse(localStorage.getItem(STORAGE.old) || 'null'); } catch (e) {}
+  if (!isValidDb(o) || !Object.keys(o).length) return notify('Nothing found', '<p>No data from the previous version was found in this browser.</p>');
+  $('agentData').value = serializeDb(o); setDirty(true);
+  $('agentData').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  toast('Old data loaded into the editor. Review it, then click Save Textarea.');
+}
+async function saveTextarea() {
   const res = parseText($('agentData').value);
-  if (!res.teams) return alert('No valid team blocks found. The first line of each block must be the team name.');
-  const warn = res.warnings.length ? `\n\nNotes:\n- ${res.warnings.join('\n- ')}` : '';
-  if (!confirm(`Save ${res.teams} team(s) and ${res.agents} agent entries to the database?${warn}`)) return;
-  setDirty(false);
-  selected.clear();
-  commitDb(res.db, `Saved: ${res.teams} teams, ${res.agents} agents`);
+  if (!res.teams) return notify('Nothing to save', '<p>No valid team blocks found. The first line of each block must be the team name.</p>');
+  const rows = Object.keys(res.db).map(t => `${t}: ${res.db[t].length} agent(s)`);
+  const html = `<p>Save <b>${res.teams}</b> team(s) and <b>${res.agents}</b> agents? Check the team list:</p>${ul(rows)}` +
+    (res.warnings.length ? `<p><b>Notes:</b></p>${ul(res.warnings)}` : '');
+  if (!(await ask('Save directory', html, 'Save'))) return;
+  pushHistory(); setDirty(false); selected.clear(); commit(res.db, `Saved: ${res.teams} teams, ${res.agents} agents`);
+}
+async function discardEdits() {
+  if (!textDirty) return toast('No unsaved edits');
+  if (!(await ask('Discard edits', '<p>Discard unsaved edits?</p>', 'Discard'))) return;
+  renderTextarea(); toast('Edits discarded');
 }
 
-function discardEdits() {
-  if (!textDirty) return toast('No unsaved edits');
-  if (!confirm('Discard unsaved textarea edits?')) return;
-  renderTextarea();
-  toast('Edits discarded');
+/* ===================== ROSTER ===================== */
+function resolveRoster(text) {
+  const out = { lines: 0, people: [], unknown: [], dupes: [], ambiguous: [] };
+  const seen = new Set(), teamNames = Object.keys(db); let hint = '';
+  String(text).replace(/\r\n?/g, '\n').split('\n').forEach(raw => {
+    const line = clean(raw.replace(/\t/g, ' ')).replace(/^\d+[.)]\s+/, '');
+    if (!line) return;
+    const tm = teamNames.find(t => t.toLowerCase() === line.toLowerCase());
+    if (tm) { hint = tm; return; }
+    out.lines++;
+    const s = splitLabel(line); let p = null;
+    if (s.id) p = index.byId.get(s.id) || null;
+    else {
+      const c = index.byKey.get(nameKey(s.name)) || [];
+      if (c.length > 1) out.ambiguous.push({ name: s.name, opts: c.map(x => `${x.id || 'no ID'}, ${x.team}`) });
+      p = c[0] || null;
+    }
+    const person = p ? { ...p } : { label: line, id: s.id, name: s.name, key: nameKey(s.name), team: hint || 'Unassigned', ident: s.id ? 'id:' + s.id : 'n:' + nameKey(s.name), known: false };
+    if (seen.has(person.ident)) { out.dupes.push(person.name); return; }
+    seen.add(person.ident);
+    person.senior = seniors.has(person.ident);
+    out.people.push(person);
+    if (!p) out.unknown.push(person);
+  });
+  return out;
+}
+function refreshRoster() {
+  const full = mode === 'full';
+  $('rosterBox').classList.toggle('hidden', full);
+  $('fullBox').classList.toggle('hidden', !full);
+  document.querySelectorAll('#modeSeg button').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
+  if (full) {
+    const people = index.people.map(p => ({ ...p, senior: seniors.has(p.ident) }));
+    currentRoster = { people, unknown: [], dupes: [], ambiguous: [], lines: people.length };
+    $('fullInfo').textContent = `Every agent in the directory (${people.length}) will be scheduled. Switch to "Paste shift list" to schedule only today's shift.`;
+  } else {
+    currentRoster = resolveRoster($('rosterText').value);
+  }
+  const r = currentRoster, sc = r.people.filter(p => p.senior).length;
+  const teams = new Set(r.people.map(p => p.team)).size;
+  const chips = [];
+  if (!full) chips.push(`<span class="chip">${r.lines} line(s)</span>`);
+  chips.push(`<span class="chip ${full || r.people.length === r.lines - r.dupes.length ? 'good' : 'warn'}">${r.people.length} scheduled</span>`);
+  chips.push(`<span class="chip">${teams} team(s)</span><span class="chip">⭐ ${sc} seniors</span>`);
+  if (r.unknown.length) chips.push(`<span class="chip warn">${r.unknown.length} not in directory</span>`);
+  if (r.dupes.length) chips.push(`<span class="chip warn">${r.dupes.length} duplicate(s)</span>`);
+  if (r.ambiguous.length) chips.push(`<span class="chip bad">${r.ambiguous.length} ambiguous</span>`);
+  $('rosterSummary').innerHTML = chips.join('');
+
+  let iss = '';
+  r.ambiguous.forEach(a => { iss += `<div class="issue warn">⚠️ <div><b>Ambiguous:</b> "${esc(a.name)}" matches ${a.opts.length} people (${esc(a.opts.join(' | '))}). The first is used. Add the ID to be exact.</div></div>`; });
+  if (r.dupes.length) iss += `<div class="issue dup">♻️ <div><b>Duplicate lines ignored (counted once):</b> ${esc(r.dupes.join(', '))}</div></div>`;
+  if (r.unknown.length) {
+    const opts = [...Object.keys(db)]; if (!opts.includes('Unassigned')) opts.push('Unassigned');
+    const def = r.unknown[0].team;
+    iss += `<div class="issue warn">❓ <div><b>Not in directory (${r.unknown.length}):</b> ${esc(r.unknown.map(u => u.name).join(', '))}. They are still scheduled under their team hint or "Unassigned".
+      <div class="row fill"><select id="unkTeam">${opts.map(t => `<option ${t === def ? 'selected' : ''}>${esc(t)}</option>`).join('')}</select>
+      <button class="btn-sm ok" type="button" data-act="addUnknown">＋ Add to directory</button></div></div></div>`;
+  }
+  $('rosterIssues').innerHTML = full ? '' : `<div class="issues">${iss}</div>`;
+  $('rosterPreview').innerHTML = `<div class="pv-grid">${r.people.map(p =>
+    `<div class="pv"><button class="star ${p.senior ? 'on' : ''}" type="button" title="Toggle Senior / Junior" data-ident="${esc(p.ident)}">${p.senior ? '⭐' : '☆'}</button>` +
+    `<span class="pv-name" title="${esc(p.label)}">${esc(p.label)}</span>${p.known ? '' : '<span class="tag">NEW</span>'}<span class="pv-team">${esc(p.team)}</span></div>`).join('') || '<div class="empty">No agents yet.</div>'}</div>`;
+  $('genHint').textContent = `Will schedule ${r.people.length} agent(s) from ${teams} team(s). Ctrl+Enter to generate.`;
 }
 
 /* ===================== GENERATION ===================== */
-// Fair, balanced placement. Seniors first (pooled across teams), then regular agents
-// team by team. One global cursor continues across both, so every slot receives
-// total counts within 1 of each other, and each team's regulars differ by at most 1.
-function buildPlan(db, sen, slots) {
-  const seen = new Map();
-  const dupes = [];
-  const teams = [];
-
-  // Deduplicate in database order (deterministic ownership)
-  Object.keys(db).forEach(name => {
-    const team = { name, seniors: [], regulars: [] };
-    db[name].forEach(label => {
-      const k = personKey(label);
-      if (!k) return;
-      if (seen.has(k)) { dupes.push({ name: displayName(label), dept: name, keptIn: seen.get(k) }); return; }
-      seen.set(k, name);
-      (sen.has(k) ? team.seniors : team.regulars).push(label);
-    });
-    teams.push(team);
-  });
-
-  const slotBuckets = Array.from({ length: slots }, () => []);
-  const matrix = {};
-  const seniorCounts = Array(slots).fill(0);
-  teams.forEach(t => { matrix[t.name] = Array(slots).fill(0); });
-
-  let cursor = Math.floor(Math.random() * slots);
-  const place = (label, team, isSenior) => {
-    const s = cursor % slots;
-    slotBuckets[s].push({ label, team: team.name, senior: isSenior });
-    matrix[team.name][s]++;
-    if (isSenior) seniorCounts[s]++;
-    cursor++;
-  };
-
-  shuffle(teams.flatMap(t => t.seniors.map(label => ({ label, team: t }))))
-    .forEach(x => place(x.label, x.team, true));
-
-  shuffle([...teams]).forEach(t => {
-    shuffle([...t.regulars]).forEach(label => place(label, t, false));
-  });
-
-  slotBuckets.forEach(b => shuffle(b));
-  const total = slotBuckets.reduce((a, b) => a + b.length, 0);
-  const seniorTotal = seniorCounts.reduce((a, b) => a + b, 0);
-  return { teams: teams.map(t => t.name), matrix, slotBuckets, seniorCounts, dupes, total, seniorTotal };
+function buildPlan(people, n) {
+  const buckets = Array.from({ length: n }, () => []);
+  let cur = Math.floor(Math.random() * n);
+  const put = p => { buckets[cur % n].push(p); cur++; };
+  const group = list => { const g = {}; list.forEach(p => (g[p.team] = g[p.team] || []).push(p)); shuffle(Object.keys(g)).forEach(t => shuffle(g[t]).forEach(put)); };
+  group(people.filter(p => p.senior));      // seniors first, team by team, one continuous cursor
+  group(people.filter(p => !p.senior));     // then regulars, team by team
+  buckets.forEach(shuffle);
+  return buckets;
 }
-
-function generateSchedule() {
-  const total = Object.values(masterDatabase).reduce((a, arr) => a + arr.length, 0);
-  if (!total) return alert('The database is empty. Add teams and agents first.');
+async function generateSchedule(scroll = true) {
+  const people = currentRoster.people;
+  if (!people.length) return notify('No agents', '<p>Paste today\'s shift list in step 1, or switch to "Use full directory".</p>');
   const time = $('startTimePicker').value;
-  if (!time) return alert('Please select a valid start time.');
-
-  const [h, m] = time.split(':').map(Number);
-  const start = h * 60 + m;
-  const dur = parseInt($('slotDurationSelect').value, 10);
-  const n = parseInt($('slotCountSelect').value, 10);
-  const labels = Array.from({ length: n }, (_, i) =>
-    `${fmtTime(start + i * dur)}-${fmtTime(start + (i + 1) * dur)}`);
-
-  const plan = buildPlan(masterDatabase, seniorSet, n);
-  lastResult = { dateStr: $('dateSelect').value, session: $('sessionTypeSelect').value, dur, labels, ...plan };
-
+  if (!time) return notify('Start time', '<p>Please select a valid start time.</p>');
+  const [h, m] = time.split(':').map(Number), start = h * 60 + m;
+  const dur = parseInt($('slotDurationSelect').value, 10), n = parseInt($('slotCountSelect').value, 10);
+  const labels = Array.from({ length: n }, (_, i) => `${fmtTime(start + i * dur)}-${fmtTime(start + (i + 1) * dur)}`);
+  const teamOrder = [...Object.keys(db)];
+  people.forEach(p => { if (!teamOrder.includes(p.team)) teamOrder.push(p.team); });
+  lastResult = { dateStr: $('dateSelect').value, session: $('sessionTypeSelect').value, dur, labels, teamOrder,
+    expected: people.map(p => p.ident), buckets: buildPlan(people.map(p => ({ ...p })), n), dupes: currentRoster.dupes, moved: 0 };
   $('outputCard').classList.remove('hidden');
+  $('outputCard').classList.remove('pop'); void $('outputCard').offsetWidth; $('outputCard').classList.add('pop');
   renderOutput();
-  $('outputCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
-  toast(textDirty ? 'Generated from SAVED data (textarea has unsaved edits)' : 'Schedule generated');
+  if (scroll) $('outputCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  toast(`Schedule generated: ${people.length} agents`);
 }
-
+function computeStats(r) {
+  const n = r.buckets.length, m = {}, sm = {};
+  r.teamOrder.forEach(t => { m[t] = Array(n).fill(0); sm[t] = Array(n).fill(0); });
+  r.buckets.forEach((b, s) => b.forEach(p => { m[p.team][s]++; if (p.senior) sm[p.team][s]++; }));
+  const totals = r.teamOrder.map(t => ({ name: t, total: m[t].reduce((a, b) => a + b, 0) })).filter(t => t.total > 0);
+  const seniorCounts = r.buckets.map(b => b.filter(p => p.senior).length);
+  return { m, sm, totals, seniorCounts, seniorTotal: seniorCounts.reduce((a, b) => a + b, 0), total: r.buckets.reduce((a, b) => a + b.length, 0) };
+}
+const teamColor = (r, t) => PALETTE[Math.max(0, r.teamOrder.indexOf(t)) % PALETTE.length];
 function renderOutput() {
-  const r = lastResult;
-  if (!r) return;
-  const teamTotals = r.teams
-    .map(name => ({ name, total: r.matrix[name].reduce((a, b) => a + b, 0) }))
-    .filter(t => t.total > 0);
+  const r = lastResult; if (!r) return;
+  const st = computeStats(r), sizes = r.buckets.map(b => b.length), max = Math.max(...sizes, 1), min = Math.min(...sizes);
+  $('outTitle').textContent = `${r.dateStr} · ${r.session} · ${r.dur} min slots`;
+  $('totalBadge').textContent = `Total: ${st.total}`;
+  $('statTiles').innerHTML = [['👥', st.total, 'Agents'], ['🏷️', st.totals.length, 'Teams'], ['⭐', st.seniorTotal, 'Seniors'], ['🕒', r.buckets.length, 'Slots'], ['⚖️', min === max ? `${max}` : `${min}–${max}`, 'Per slot']]
+    .map(([i, v, l]) => `<div class="tile"><span class="ti">${i}</span><div><div class="tv">${v}</div><div class="tl">${l}</div></div></div>`).join('');
 
-  $('totalBadge').textContent = `Total: ${r.total}`;
-  $('teamBadges').innerHTML = teamTotals.map(t => `<span class="badge">${esc(t.name)}: <b>${t.total}</b></span>`).join('') +
-    `<span class="badge badge-acc">⭐ Seniors: <b>${r.seniorTotal}</b></span>`;
+  // verification
+  const actual = r.buckets.flat().map(p => p.ident), uniq = new Set(actual);
+  const okAll = actual.length === r.expected.length && uniq.size === actual.length && r.expected.every(i => uniq.has(i));
+  $('verifyBox').innerHTML = okAll
+    ? `<div class="verify ok">✅ <b>Verified:</b> ${actual.length} of ${r.expected.length} agents scheduled exactly once. ${max - min <= 1 ? 'Slot sizes differ by at most 1.' : `Slot sizes differ by ${max - min} (manually adjusted).`}</div>`
+    : `<div class="verify bad">❌ <b>Mismatch:</b> expected ${r.expected.length} agents, schedule has ${actual.length} (${uniq.size} unique). Please generate again.</div>`;
 
-  $('dupeNote').innerHTML = r.dupes.length
-    ? `<div class="note">Listed in more than one team, scheduled once in the first team: ${
-        r.dupes.map(d => `${esc(d.name)} (${esc(d.dept)} → kept in ${esc(d.keptIn)})`).join(', ')}</div>`
-    : '';
+  $('teamBadges').innerHTML = st.totals.map(t => `<span class="badge"><i class="dot" style="--tc:${teamColor(r, t.name)}"></i>${esc(t.name)}: <b>${t.total}</b></span>`).join('') +
+    `<span class="badge badge-acc">⭐ Seniors: <b>${st.seniorTotal}</b></span>`;
+  $('dupeNote').innerHTML = r.dupes.length ? `<div class="note">Listed more than once, scheduled once: ${esc(r.dupes.join(', '))}</div>` : '';
 
-  $('slotCards').innerHTML = r.slotBuckets.map((bucket, s) => {
-    const rows = teamTotals
-      .map(t => ({ name: t.name, c: r.matrix[t.name][s] }))
-      .filter(x => x.c > 0)
-      .map(x => `<div class="srow"><span>${esc(x.name)}</span><b>${x.c}</b></div>`).join('');
-    return `<div class="slot-card">
-      <div class="slot-head"><span>Slot ${s + 1}</span><span class="muted">${esc(r.labels[s])}</span></div>
-      ${rows}
-      <div class="srow seniors"><span>⭐ Seniors</span><b>${r.seniorCounts[s]}</b></div>
-      <div class="srow total"><span>Total in slot</span><b>${bucket.length}</b></div>
-    </div>`;
+  $('slotCards').innerHTML = r.buckets.map((b, s) => {
+    const rows = st.totals.map(t => { const c = st.m[t.name][s];
+      return `<div class="srow ${c ? '' : 'zero'}"><span><i class="dot" style="--tc:${teamColor(r, t.name)}"></i>${esc(t.name)}</span><b>${c}</b></div>`; }).join('');
+    return `<div class="slot-card"><div class="slot-head"><span>Slot ${s + 1}</span><span class="muted">${esc(r.labels[s])}</span></div>
+      <div class="bar"><i style="width:${Math.round(b.length / max * 100)}%"></i></div>${rows}
+      <div class="srow seniors"><span>⭐ Seniors</span><b>${st.seniorCounts[s]}</b></div>
+      <div class="srow total"><span>Total in slot</span><b>${b.length}</b></div></div>`;
   }).join('');
 
-  let table = `<table class="matrix"><thead><tr><th>Team</th>` +
-    r.labels.map((l, s) => `<th>Slot ${s + 1}<br><small>${esc(l)}</small></th>`).join('') +
-    `<th>Total</th></tr></thead><tbody>`;
-  teamTotals.forEach(t => {
-    table += `<tr><td class="tl">${esc(t.name)}</td>${r.matrix[t.name].map(c => `<td>${c}</td>`).join('')}<td class="tt">${t.total}</td></tr>`;
+  let tb = `<table class="matrix"><thead><tr><th>Team</th>${r.labels.map((l, s) => `<th>Slot ${s + 1}<br><small style="color:var(--muted)">${esc(l)}</small></th>`).join('')}<th>Total</th></tr></thead><tbody>`;
+  st.totals.forEach(t => {
+    tb += `<tr><td class="tl"><i class="dot" style="--tc:${teamColor(r, t.name)}"></i> ${esc(t.name)}</td>` +
+      st.m[t.name].map((c, s) => `<td>${c}${st.sm[t.name][s] ? `<small>⭐${st.sm[t.name][s]}</small>` : ''}</td>`).join('') + `<td class="tt">${t.total}</td></tr>`;
   });
-  table += `<tr class="tot"><td class="tl">Total per slot</td>${r.slotBuckets.map(b => `<td>${b.length}</td>`).join('')}<td>${r.total}</td></tr>`;
-  table += `</tbody></table>`;
-  $('matrixWrap').innerHTML = table;
+  tb += `<tr class="tot"><td class="tl">Total per slot</td>${r.buckets.map(b => `<td>${b.length}</td>`).join('')}<td>${st.total}</td></tr></tbody></table>`;
+  $('matrixWrap').innerHTML = tb;
 
-  renderText();
+  renderLists(); renderText();
 }
-
-function buildText(filter) {
-  const r = lastResult;
-  const showIds = $('showIds').checked;
-  const q = (filter || '').trim().toLowerCase();
+function ordered(r, b) {
+  const o = $('orderSelect').value, a = [...b];
+  if (o === 'team') a.sort((x, y) => r.teamOrder.indexOf(x.team) - r.teamOrder.indexOf(y.team) || x.name.localeCompare(y.name));
+  else if (o === 'az') a.sort((x, y) => x.name.localeCompare(y.name));
+  return a;
+}
+function renderLists() {
+  const r = lastResult; if (!r) return;
+  const q = $('outputSearch').value.trim().toLowerCase(), showIds = $('showIds').checked;
+  $('slotLists').innerHTML = r.buckets.map((b, s) => {
+    const items = ordered(r, b).map((p, i) => {
+      const dim = q && !p.name.toLowerCase().includes(q) && !(p.id || '').toLowerCase().includes(q);
+      return `<div class="agent${dim ? ' dim' : ''}" draggable="true" data-ident="${esc(p.ident)}" data-slot="${s}"><span class="num">${i + 1}</span>` +
+        `<span class="aname">${showIds && p.id ? `<small>${esc(p.id)}</small>` : ''}${esc(p.name)}</span>` +
+        `<span class="ateam"><i class="dot" style="--tc:${teamColor(r, p.team)}"></i>${esc(p.team)}</span></div>`;
+    }).join('');
+    return `<div class="list-col" data-slot="${s}"><div class="list-head"><span>Slot ${s + 1}</span><span class="muted">${esc(r.labels[s])} · ${b.length}</span></div>` +
+      `<div class="agents">${items || '<div class="empty">No agents</div>'}</div></div>`;
+  }).join('');
+}
+function moveAgent(ident_, from, to) {
+  const r = lastResult; if (!r || from === to) return;
+  const i = r.buckets[from].findIndex(p => p.ident === ident_); if (i < 0) return;
+  const [p] = r.buckets[from].splice(i, 1); r.buckets[to].push(p);
+  renderOutput(); toast(`${p.name} moved to Slot ${to + 1}`);
+}
+function buildText() {
+  const r = lastResult, showIds = $('showIds').checked;
   let out = `*${r.dateStr} ${r.session} (${r.dur}min Break Slot)*\n*No Swap Allowed*\n\n`;
-  r.slotBuckets.forEach((bucket, s) => {
+  r.buckets.forEach((b, s) => {
     out += `${r.labels[s]}\n\n`;
-    const items = bucket
-      .filter(e => !q || displayName(e.label).toLowerCase().includes(q))
-      .map(e => showIds ? e.label : displayName(e.label));
-    out += items.length ? items.join('\n') : (q ? '(no match in this slot)' : 'No agents assigned');
-    out += '\n\n';
+    const items = ordered(r, b).map(p => showIds ? p.label : p.name);
+    out += (items.length ? items.join('\n') : 'No agents assigned') + '\n\n';
   });
   return out.trim();
 }
-
-function renderText() {
-  if (!lastResult) return;
-  $('outputText').textContent = buildText($('outputSearch').value);
-}
+function renderText() { if (lastResult) $('outputText').textContent = buildText(); }
 
 /* ===================== EXPORTS ===================== */
 async function copyOutput() {
-  const text = $('outputText').textContent;
-  try {
-    await navigator.clipboard.writeText(text);
-  } catch (e) {
-    const ta = document.createElement('textarea');
-    ta.value = text;
-    document.body.appendChild(ta);
-    ta.select();
-    document.execCommand('copy');
-    ta.remove();
-  }
-  toast('Text copied');
+  if (!lastResult) return;
+  const text = buildText();
+  try { await navigator.clipboard.writeText(text); }
+  catch (e) { const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); }
+  toast('Full list copied');
 }
-
-function fileBase() {
-  return `${lastResult.dateStr}_${lastResult.session}_Break_Schedule`.replace(/[^\w.-]+/g, '_');
-}
-
+const fileBase = () => `${lastResult.dateStr}_${lastResult.session}_Break_Schedule`.replace(/[^\w.-]+/g, '_');
 function downloadTxt() {
   if (!lastResult) return;
-  const url = URL.createObjectURL(new Blob([$('outputText').textContent], { type: 'text/plain;charset=utf-8' }));
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `${fileBase()}.txt`;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
-  toast('File downloaded');
+  const url = URL.createObjectURL(new Blob([buildText()], { type: 'text/plain;charset=utf-8' }));
+  const a = document.createElement('a'); a.href = url; a.download = `${fileBase()}.txt`;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000); toast('File downloaded');
 }
-
 function exportPng() {
   if (!lastResult) return;
-  if (typeof html2canvas !== 'function') return alert('html2canvas failed to load. Check your internet connection.');
+  if (typeof html2canvas !== 'function') return notify('Export failed', '<p>html2canvas failed to load. Check your internet connection.</p>');
   toast('Generating image...');
-  html2canvas($('exportArea'), {
-    backgroundColor: document.body.classList.contains('light') ? '#f1f5f9' : '#09090b',
-    scale: 2
-  }).then(canvas => {
-    const a = document.createElement('a');
-    a.download = `${fileBase()}.png`;
-    a.href = canvas.toDataURL('image/png');
-    a.click();
-    toast('PNG exported');
-  }).catch(() => toast('Image export failed'));
+  html2canvas($('exportArea'), { backgroundColor: document.body.classList.contains('light') ? '#eef2f7' : '#07070a', scale: 2 })
+    .then(c => { const a = document.createElement('a'); a.download = `${fileBase()}.png`; a.href = c.toDataURL('image/png'); a.click(); toast('PNG exported'); })
+    .catch(() => toast('Image export failed'));
 }
 
 /* ===================== INIT & EVENTS ===================== */
 function populateDates() {
-  const ds = $('dateSelect');
-  const t = new Date();
+  const ds = $('dateSelect'), t = new Date();
   for (let i = 0; i < 7; i++) {
-    const d = new Date(t.getFullYear(), t.getMonth(), t.getDate() + i);
-    const txt = `${d.getDate()} ${MONTHS[d.getMonth()]}`;
+    const d = new Date(t.getFullYear(), t.getMonth(), t.getDate() + i), txt = `${d.getDate()} ${MONTHS[d.getMonth()]}`;
     ds.add(new Option(i === 0 ? `${txt} (Today)` : i === 1 ? `${txt} (Tomorrow)` : txt, txt));
   }
 }
-
 function applyTheme() {
   const light = localStorage.getItem(STORAGE.theme) === 'light';
   document.body.classList.toggle('light', light);
-  $('themeBtn').textContent = light ? 'Dark Mode' : 'Light Mode';
+  $('themeBtn').textContent = light ? '🌙 Dark' : '☀ Light';
 }
-
 function bindEvents() {
   const on = (id, ev, fn) => $(id).addEventListener(ev, fn);
   on('themeBtn', 'click', () => {
     const light = document.body.classList.toggle('light');
     localStorage.setItem(STORAGE.theme, light ? 'light' : 'dark');
-    $('themeBtn').textContent = light ? 'Dark Mode' : 'Light Mode';
+    $('themeBtn').textContent = light ? '🌙 Dark' : '☀ Light';
   });
-  on('sessionTypeSelect', 'change', () => {
-    $('startTimePicker').value = $('sessionTypeSelect').value === 'Morning Break' ? '08:30' : '17:00';
-  });
-  on('generateBtn', 'click', generateSchedule);
+  on('sessionTypeSelect', 'change', () => { $('startTimePicker').value = $('sessionTypeSelect').value === 'Morning Break' ? '08:30' : '17:00'; });
+  on('generateBtn', 'click', () => generateSchedule(true));
+  on('reshuffleBtn', 'click', () => generateSchedule(false));
   on('togglePanelBtn', 'click', () => {
-    $('managerPanel').classList.toggle('hidden');
-    refreshUI();
+    const h = $('managerPanel').classList.toggle('hidden');
+    $('togglePanelBtn').textContent = h ? 'Manage Panel ▾' : 'Manage Panel ▴';
   });
 
-  on('addDeptBtn', 'click', addDept);
-  on('renameDeptBtn', 'click', renameDept);
-  on('deleteDeptBtn', 'click', deleteDept);
-  on('bulkAddBtn', 'click', bulkAdd);
-  on('replaceBtn', 'click', bulkReplace);
-  on('moveBtn', 'click', moveSelected);
-  on('removeSelBtn', 'click', removeSelected);
-  on('seniorBtn', 'click', toggleSeniorSelected);
-  on('shuffleOrderBtn', 'click', shuffleOrder);
-  on('resetBtn', 'click', resetDefault);
+  document.querySelectorAll('#modeSeg button').forEach(b => b.addEventListener('click', () => { mode = b.dataset.mode; localStorage.setItem(STORAGE.mode, mode); refreshRoster(); }));
+  on('rosterText', 'input', () => { localStorage.setItem(STORAGE.roster, $('rosterText').value); refreshRoster(); });
+  on('clearRosterBtn', 'click', () => { $('rosterText').value = ''; localStorage.removeItem(STORAGE.roster); refreshRoster(); });
+  $('rosterPreview').addEventListener('click', e => { const b = e.target.closest('.star'); if (b) toggleSeniorIdent(b.dataset.ident); });
+  $('rosterIssues').addEventListener('click', e => {
+    if (!e.target.closest('[data-act="addUnknown"]')) return;
+    const team = $('unkTeam').value, list = currentRoster.unknown.map(p => ({ ...p }));
+    mutate(d => {
+      if (!d[team]) d[team] = [];
+      let n = 0;
+      list.forEach(p => { if (!d[team].some(a => ident(a) === p.ident)) { d[team].push(p.label); n++; } });
+      return `Added ${n} agent(s) to ${team}`;
+    });
+  });
 
-  on('pickerSearch', 'input', renderPicker);
-  on('pickerDeptFilter', 'change', renderPicker);
-  on('selectShownBtn', 'click', () => { shownPickerKeys.forEach(k => selected.add(k)); renderPicker(); });
+  on('addDeptBtn', 'click', addDept); on('renameDeptBtn', 'click', renameDept); on('deleteDeptBtn', 'click', deleteDept);
+  on('bulkAddBtn', 'click', bulkAdd); on('replaceBtn', 'click', bulkReplace);
+  on('moveBtn', 'click', moveSelected); on('removeSelBtn', 'click', removeSelected);
+  on('markSeniorBtn', 'click', () => setSeniorSelected(true)); on('markJuniorBtn', 'click', () => setSeniorSelected(false));
+  on('seniorApplyBtn', 'click', applySeniorList);
+  on('shuffleOrderBtn', 'click', shuffleOrder); on('resetBtn', 'click', resetDefault);
+  on('backupBtn', 'click', backup); on('restoreBtn', 'click', () => $('restoreFile').click());
+  on('restoreFile', 'change', e => restoreFile(e.target.files[0])); on('recoverBtn', 'click', recoverOld);
+  on('undoBtn', 'click', undo);
+
+  on('pickerSearch', 'input', renderPicker); on('pickerDeptFilter', 'change', renderPicker);
+  on('selectShownBtn', 'click', () => { shownKeys.forEach(k => selected.add(k)); renderPicker(); });
   on('clearSelBtn', 'click', () => { selected.clear(); renderPicker(); });
   $('pickerList').addEventListener('change', e => {
-    if (e.target.matches('input[type="checkbox"]')) {
-      const key = e.target.dataset.key;
-      e.target.checked ? selected.add(key) : selected.delete(key);
-      $('pickerCount').textContent = `${selected.size} selected · ${shownPickerKeys.length} shown`;
-    }
+    if (e.target.matches('input[type="checkbox"]')) { const k = e.target.dataset.key; e.target.checked ? selected.add(k) : selected.delete(k); updatePickerCount(); }
   });
-
   on('agentData', 'input', () => setDirty(true));
-  on('saveTextBtn', 'click', saveTextarea);
-  on('discardBtn', 'click', discardEdits);
+  on('saveTextBtn', 'click', saveTextarea); on('discardBtn', 'click', discardEdits);
 
-  on('outputSearch', 'input', renderText);
-  on('showIds', 'change', () => { if (lastResult) { renderText(); } });
-  on('copyBtn', 'click', copyOutput);
-  on('dlBtn', 'click', downloadTxt);
-  on('pngBtn', 'click', exportPng);
+  on('outputSearch', 'input', renderLists);
+  on('orderSelect', 'change', () => { renderLists(); renderText(); });
+  on('showIds', 'change', () => { renderLists(); renderText(); });
+  on('copyBtn', 'click', copyOutput); on('dlBtn', 'click', downloadTxt); on('pngBtn', 'click', exportPng);
 
-  window.addEventListener('beforeunload', e => {
-    if (textDirty) { e.preventDefault(); e.returnValue = ''; }
+  // drag & drop between slots
+  const L = $('slotLists');
+  L.addEventListener('dragstart', e => {
+    const a = e.target.closest('.agent'); if (!a) return;
+    drag = { ident: a.dataset.ident, slot: +a.dataset.slot }; a.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', drag.ident);
   });
-}
+  L.addEventListener('dragend', () => { drag = null; L.querySelectorAll('.dragging,.over').forEach(x => x.classList.remove('dragging', 'over')); });
+  L.addEventListener('dragover', e => { const c = e.target.closest('.list-col'); if (c && drag) { e.preventDefault(); c.classList.add('over'); } });
+  L.addEventListener('dragleave', e => { const c = e.target.closest('.list-col'); if (c && !c.contains(e.relatedTarget)) c.classList.remove('over'); });
+  L.addEventListener('drop', e => { const c = e.target.closest('.list-col'); if (!c || !drag) return; e.preventDefault(); const d = drag; drag = null; moveAgent(d.ident, d.slot, +c.dataset.slot); });
 
+  // modal + shortcuts
+  on('modalOk', 'click', () => closeModal(true)); on('modalCancel', 'click', () => closeModal(false));
+  $('modal').addEventListener('click', e => { if (e.target.id === 'modal') closeModal(false); });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && !$('modal').classList.contains('hidden')) closeModal(false);
+    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey) && $('modal').classList.contains('hidden')) generateSchedule(true);
+  });
+  window.addEventListener('beforeunload', e => { if (textDirty) { e.preventDefault(); e.returnValue = ''; } });
+}
 function init() {
-  populateDates();
-  applyTheme();
-  masterDatabase = loadDb();
-  seniorSet = loadSeniors();
-  bindEvents();
-  refreshUI();
+  populateDates(); applyTheme();
+  db = loadDb(); seniors = loadSeniors();
+  mode = localStorage.getItem(STORAGE.mode) === 'full' ? 'full' : 'roster';
+  $('rosterText').value = localStorage.getItem(STORAGE.roster) || '';
+  $('undoBtn').disabled = true;
+  bindEvents(); refreshAll();
 }
-
 init();
 </script>
 </body>

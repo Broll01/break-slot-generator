@@ -936,11 +936,49 @@ function refreshRoster() {
 /* ===================== GENERATION ===================== */
 function buildPlan(people, n) {
   const buckets = Array.from({ length: n }, () => []);
-  let cur = Math.floor(Math.random() * n);
-  const put = p => { buckets[cur % n].push(p); cur++; };
-  const group = list => { const g = {}; list.forEach(p => (g[p.team] = g[p.team] || []).push(p)); shuffle(Object.keys(g)).forEach(t => shuffle(g[t]).forEach(put)); };
-  group(people.filter(p => p.senior));      // seniors first, team by team, one continuous cursor
-  group(people.filter(p => !p.senior));     // then regulars, team by team
+  const sizes = Array(n).fill(0);      // প্রতিটি স্লটে এখন পর্যন্ত মোট কতজন
+  const sen = Array(n).fill(0);        // প্রতিটি স্লটে এখন পর্যন্ত কতজন সিনিয়র
+
+  // টিম অনুযায়ী গ্রুপ করা
+  const byTeam = {};
+  people.forEach(p => (byTeam[p.team] = byTeam[p.team] || []).push(p));
+  const teams = shuffle(Object.keys(byTeam));
+
+  // ধাপ ১: প্রতিটি টিমের জন্য স্লট-ভিত্তিক কোটা ঠিক করা
+  // মোট t জন, n স্লট => প্রতি স্লটে floor(t/n) জন, বাকি (t % n) জন অতিরিক্ত।
+  // অতিরিক্তরা সেই স্লটে যায় যেখানে মোট সংখ্যা সবচেয়ে কম (ফলে স্লটের মোট সাইজও ব্যালেন্স থাকে)।
+  const quota = {};
+  teams.forEach(t => {
+    const total = byTeam[t].length, base = Math.floor(total / n), extra = total % n;
+    quota[t] = Array(n).fill(base);
+    const order = shuffle([...Array(n).keys()]).sort((a, b) => sizes[a] - sizes[b]);
+    for (let k = 0; k < extra; k++) quota[t][order[k]]++;
+    quota[t].forEach((q, s) => { sizes[s] += q; });
+  });
+
+  // ধাপ ২: কোটার ভেতরে সদস্য বসানো। যেসব টিমে সিনিয়র বেশি, তাদের আগে প্রসেস করা হয়।
+  const seniorCount = t => byTeam[t].filter(p => p.senior).length;
+  const phase2 = [...teams].sort((a, b) => seniorCount(b) - seniorCount(a));
+  phase2.forEach(t => {
+    const left = [...quota[t]];
+    const seniorsList = shuffle(byTeam[t].filter(p => p.senior));
+    const regulars = shuffle(byTeam[t].filter(p => !p.senior));
+
+    // সিনিয়রদের এমন স্লটে দেওয়া হয় যেখানে কোটা বাকি আছে এবং সিনিয়র সংখ্যা সবচেয়ে কম
+    seniorsList.forEach(p => {
+      const cand = shuffle([...Array(n).keys()].filter(s => left[s] > 0));
+      let best = cand[0];
+      cand.forEach(s => { if (sen[s] < sen[best]) best = s; });
+      buckets[best].push(p); left[best]--; sen[best]++;
+    });
+
+    // বাকি কোটা অনুযায়ী সাধারণ এজেন্টদের র‍্যান্ডমভাবে বসানো
+    const slotsLeft = [];
+    left.forEach((c, s) => { for (let k = 0; k < c; k++) slotsLeft.push(s); });
+    shuffle(slotsLeft);
+    regulars.forEach((p, i) => buckets[slotsLeft[i]].push(p));
+  });
+
   buckets.forEach(shuffle);
   return buckets;
 }

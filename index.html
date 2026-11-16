@@ -1049,9 +1049,13 @@ function renderOutput() {
 }
 function ordered(r, b) {
   const o = $('orderSelect').value, a = [...b];
-  +  const teams = [...new Set([...r.teamOrder, ...a.map(p => p.team)])];
-+  a.sort((x, y) => teams.indexOf(x.team) - teams.indexOf(y.team) ||
-+    (o === 'random' ? 0 : x.name.localeCompare(y.name)));
+  const teams = [...new Set([...r.teamOrder, ...a.map(p => p.team)])];
+
+  a.sort((x, y) =>
+    teams.indexOf(x.team) - teams.indexOf(y.team) ||
+    (o === 'random' ? 0 : x.name.localeCompare(y.name))
+  );
+
   return a;
 }
 function renderLists() {
@@ -1061,7 +1065,7 @@ function renderLists() {
     const items = ordered(r, b).map((p, i) => {
       const dim = q && !p.name.toLowerCase().includes(q) && !(p.id || '').toLowerCase().includes(q);
       return `<div class="agent${dim ? ' dim' : ''}" draggable="true" data-ident="${esc(p.ident)}" data-slot="${s}"><span class="num">${i + 1}</span>` +
-        `<span class="aname">${esc(p.name)}</span>` : ''}${esc(p.name)}</span>` +
+        `<span class="aname">${esc(p.name)}</span>` +
         `<span class="ateam"><i class="dot" style="--tc:${teamColor(r, p.team)}"></i>${esc(p.team)}</span></div>`;
     }).join('');
     return `<div class="list-col" data-slot="${s}"><div class="list-head"><span>Slot ${s + 1}</span><span class="muted">${esc(r.labels[s])} · ${b.length}</span></div>` +

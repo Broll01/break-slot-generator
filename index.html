@@ -1049,18 +1049,19 @@ function renderOutput() {
 }
 function ordered(r, b) {
   const o = $('orderSelect').value, a = [...b];
-  if (o === 'team') a.sort((x, y) => r.teamOrder.indexOf(x.team) - r.teamOrder.indexOf(y.team) || x.name.localeCompare(y.name));
-  else if (o === 'az') a.sort((x, y) => x.name.localeCompare(y.name));
+  +  const teams = [...new Set([...r.teamOrder, ...a.map(p => p.team)])];
++  a.sort((x, y) => teams.indexOf(x.team) - teams.indexOf(y.team) ||
++    (o === 'random' ? 0 : x.name.localeCompare(y.name)));
   return a;
 }
 function renderLists() {
   const r = lastResult; if (!r) return;
-  const q = $('outputSearch').value.trim().toLowerCase(), showIds = $('showIds').checked;
+  const q = $('outputSearch').value.trim().toLowerCase();
   $('slotLists').innerHTML = r.buckets.map((b, s) => {
     const items = ordered(r, b).map((p, i) => {
       const dim = q && !p.name.toLowerCase().includes(q) && !(p.id || '').toLowerCase().includes(q);
       return `<div class="agent${dim ? ' dim' : ''}" draggable="true" data-ident="${esc(p.ident)}" data-slot="${s}"><span class="num">${i + 1}</span>` +
-        `<span class="aname">${showIds && p.id ? `<small>${esc(p.id)}</small>` : ''}${esc(p.name)}</span>` +
+        `<span class="aname">${esc(p.name)}</span>` : ''}${esc(p.name)}</span>` +
         `<span class="ateam"><i class="dot" style="--tc:${teamColor(r, p.team)}"></i>${esc(p.team)}</span></div>`;
     }).join('');
     return `<div class="list-col" data-slot="${s}"><div class="list-head"><span>Slot ${s + 1}</span><span class="muted">${esc(r.labels[s])} · ${b.length}</span></div>` +
@@ -1074,11 +1075,11 @@ function moveAgent(identVal, from, to) {
   renderOutput(); toast(`${p.name} moved to Slot ${to + 1}`);
 }
 function buildText() {
-  const r = lastResult, showIds = $('showIds').checked;
+  const r = lastResult;
   let out = `*${r.dateStr} ${r.session} (${r.dur}min Break Slot)*\n*No Swap Allowed*\n\n`;
   r.buckets.forEach((b, s) => {
     out += `${r.labels[s]}\n\n`;
-    const items = ordered(r, b).map(p => showIds ? p.label : p.name);
+    const items = ordered(r, b).map(p => p.name);
     out += (items.length ? items.join('\n') : 'No agents assigned') + '\n\n';
   });
   return out.trim();

@@ -36,7 +36,7 @@
   .step{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:9px;font-size:13px;color:#fff;background:linear-gradient(135deg,var(--a1),var(--a2))}
   .hint{font-size:12.5px;color:var(--muted);line-height:1.55;margin-bottom:8px}
   label{display:block;font-size:11.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin:14px 0 6px}
-  input[type=text],input:not([type]),input[type=time],select,textarea{width:100%;background:var(--input);border:1px solid var(--border);color:var(--text);padding:11px 12px;border-radius:12px;font-size:13.5px;outline:none;transition:.2s}
+  input[type=text],input:not([type]),input[type=time],input[type=number],select,textarea{width:100%;background:var(--input);border:1px solid var(--border);color:var(--text);padding:11px 12px;border-radius:12px;font-size:13.5px;outline:none;transition:.2s}
   input:focus,select:focus,textarea:focus{border-color:var(--a1);box-shadow:0 0 0 4px rgba(139,92,246,.16)}
   textarea{resize:vertical;font-family:"Courier New",monospace;font-size:13px;line-height:1.5}
   .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
@@ -156,6 +156,7 @@
   .aname{flex:1;font-weight:600}
   .aname small{color:var(--muted);font-weight:600;margin-right:5px}
   .ateam{font-size:10.5px;color:var(--muted);display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+  .status-chip{font-size:10px;padding:2px 8px;border-radius:10px;background:var(--input);border:1px solid var(--border);color:var(--muted);white-space:nowrap}
   .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:16px}
   .toolbar input[type=text]{flex:1;min-width:200px;width:auto}
   .toolbar select{width:auto}
@@ -166,6 +167,28 @@
   .btn-dl{background:linear-gradient(135deg,#f59e0b,#d97706)}
   .btn-img{background:linear-gradient(135deg,var(--a1),#6d28d9)}
   pre{background:var(--input);border:1px solid var(--border);border-radius:12px;padding:16px;white-space:pre-wrap;font-family:"Courier New",monospace;font-size:13.5px;line-height:1.55;color:var(--text)}
+
+  /* ---------- NEW: rules / versions / compare ---------- */
+  .rule-row{display:flex;gap:8px;align-items:center;background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:8px 10px;margin-top:6px;font-size:12.5px}
+  .rule-row .remove{background:var(--danger);padding:4px 9px;font-size:11px}
+  .skill-pill{display:inline-flex;gap:5px;align-items:center;background:rgba(139,92,246,.2);border:1px solid rgba(139,92,246,.4);color:#c4b5fd;padding:3px 9px;border-radius:12px;font-size:11.5px;margin-right:6px}
+  .compare-wrap{border:1px solid var(--border);border-radius:12px;padding:12px;background:var(--panel);margin-top:8px}
+  .version-item{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border:1px solid var(--border);border-radius:10px;background:var(--input);margin-top:6px;font-size:12.5px}
+  .version-item b{color:var(--a2)}
+  .export-layout{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:6px}
+  .export-layout label{margin:0;font-size:12px;display:flex;align-items:center;gap:6px}
+  .export-layout input{width:auto}
+
+  /* Print specific */
+  @media print{
+    body{background:#fff !important;color:#000 !important}
+    .card{background:#fff !important;border:1px solid #ccc !important;box-shadow:none !important}
+    .export{background:#fff !important;border:none !important;padding:0}
+    .print-only{display:block !important}
+    .hide-print{display:none !important}
+    .agent{background:#fff;border-color:#ccc}
+    .dot{background:#000}
+  }
 
   .modal{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);display:grid;place-items:center;padding:16px}
   .modal-box{width:100%;max-width:520px;background:var(--bg);border:1px solid var(--border2);border-radius:20px;padding:22px;box-shadow:0 30px 70px rgba(0,0,0,.6);animation:pop .25s ease both}
@@ -254,8 +277,31 @@
         </select>
       </div>
     </div>
+    <div class="row fill"><label class="check" style="margin:0"><input type="checkbox" id="smartRotation" checked> 🧠 স্মার্ট ডেইলি রোটেশন (একই এজেন্ট বারবার একই স্লটে পাবে না)</label></div>
     <button class="btn" id="generateBtn" type="button">✨ Generate Randomized Schedule</button>
     <div class="muted center" style="margin-top:9px" id="genHint"></div>
+  </section>
+
+  <!-- 2.5 Rules & Constraints -->
+  <section class="card" id="rulesCard">
+    <div class="title"><span class="step">2.5</span> Rules & Constraints</div>
+    <div class="hint">নতুন নিয়মগুলো ডিফল্টভাবে বন্ধ থাকবে। চালু করলে কেবল নির্বাচিত শর্ত অনুযায়ী ফল বদলাবে। অসম্ভব হলে কারণে দিয়ে সতর্ক করা হবে—চুপচাপ ভুল শিডিউল তৈরি করবে না।</div>
+
+    <div class="box">
+      <h3>স্কিলভিত্তিক কভারেজ</h3>
+      <div class="row fill"><input type="text" id="skillNameInput" placeholder="নতুন স্কিল, যেমন: Escalation Handling"><button class="btn-sm ok" id="addSkillBtn" type="button">Add Skill</button></div>
+      <div id="skillList"></div>
+      <div class="sub">প্রতি স্লটে ন্যূনতম স্কিল কভারেজ</div>
+      <div id="skillRuleList"></div>
+      <div class="row fill"><input type="text" id="skillRuleSkill" placeholder="স্কিল"><input type="number" id="skillRuleMin" placeholder="ন্যূনতম" min="0"><label class="check nofill" style="margin:0"><input type="checkbox" id="skillRuleHard"> বাধ্যতামূলক</label><button class="btn-sm ok" id="addSkillRuleBtn" type="button">Add Rule</button></div>
+    </div>
+
+    <div class="box">
+      <h3>দুই এজেন্টের unió/পৃথককরণ</h3>
+      <div class="row fill"><select id="pairAgentA"></select><select id="pairAgentB"></select></div>
+      <div class="row fill"><select id="pairType"><option value="separate">Keep Separate</option><option value="together">Keep Together</option></select><label class="check nofill" style="margin:0"><input type="checkbox" id="pairHard"> বাধ্যতামূলক</label><button class="btn-sm acc" id="addPairRuleBtn" type="button">Add Rule</button></div>
+      <div id="pairRuleList"></div>
+    </div>
   </section>
 
   <!-- Output -->
@@ -267,6 +313,12 @@
       </div>
       <div class="stat-tiles" id="statTiles"></div>
       <div id="verifyBox" data-html2canvas-ignore="true"></div>
+
+      <div class="export-layout">
+        <label><input type="radio" name="exportLayout" value="team" checked> Team Share</label>
+        <label><input type="radio" name="exportLayout" value="supervisor"> Supervisor</label>
+        <label><input type="radio" name="exportLayout" value="print"> Print</label>
+      </div>
 
       <div class="sub">Overall Team Breakdown</div>
       <div class="badges" id="teamBadges"></div>
@@ -280,6 +332,20 @@
 
       <div class="sub">Break List <span style="text-transform:none;letter-spacing:0" data-html2canvas-ignore="true">(desktop: drag an agent to another slot to adjust)</span></div>
       <div class="lists-grid" id="slotLists"></div>
+
+      <!-- NEW: Compare -->
+      <div class="sub">Schedule Compare <span style="text-transform:none;letter-spacing:0">(previous vs current)</span></div>
+      <button class="btn-sm" id="compareBtn" type="button">🔄 Compare with Previous</button>
+      <div id="compareWrap" class="compare-wrap"></div>
+
+      <!-- NEW: Versions -->
+      <div class="sub">Version History</div>
+      <div id="versionWrap"></div>
+      <div class="row fill"><input type="text" id="versionNote" placeholder="Revision note..."><button class="btn-sm ok" id="publishVersionBtn" type="button">Publish Version</button></div>
+
+      <!-- NEW: Rotation status -->
+      <div class="sub">🧠 স্মার্ট রোটেশন স্ট্যাটাস</div>
+      <div id="rotationStatus"></div>
     </div>
 
     <div class="toolbar">
@@ -401,7 +467,7 @@
 
 <script>
 /* ===================== CONSTANTS ===================== */
-const STORAGE = { db:'bsg_db_v6', sen:'bsg_sen_v6', theme:'bsg_theme_v5', roster:'bsg_roster_v6', mode:'bsg_mode_v6', old:'bsg_masterDatabase_v5' };
+const STORAGE = { db:'bsg_db_v6', sen:'bsg_sen_v6', theme:'bsg_theme_v5', roster:'bsg_roster_v6', mode:'bsg_mode_v6', old:'bsg_masterDatabase_v5', slotHist:'bsg_slot_hist_v1', smartRot:'bsg_smart_rot_v1' };
 const PALETTE = ['#8b5cf6','#3b82f6','#10b981','#f59e0b','#ec4899','#06b6d4','#84cc16','#f97316','#a78bfa','#14b8a6'];
 const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 
@@ -525,7 +591,17 @@ const defaultSeniors = () => new Set(DEFAULT_SENIOR_IDS.map(i => 'id:' + i));
 let db = {}, seniors = new Set(), index = null, undoStack = [];
 let selected = new Set(), shownKeys = [], textDirty = false;
 let mode = 'roster', currentRoster = { people: [], unknown: [], dupes: [], ambiguous: [], lines: 0 };
-let lastResult = null, drag = null, modalResolve = null;
+let lastResult = null, previousResult = null, drag = null, modalResolve = null;
+
+/* NEW STATE */
+let agentSkills = new Map();   // ident -> Set of skills
+let skillRules = [];           // {skill, min, hard}
+let pairRules = [];            // {a, b, type ('separate'|'together'), hard}
+let breakStatus = new Map();   // ident -> 'not_started'|'on_break'|'returned'
+let slotHistory = new Map();   // ident -> [{date, slot}]
+let versions = [];             // {v, date, session, labels, buckets, note, count}
+let exportLayout = 'team';     // team | supervisor | print
+let smartRotation = true;      // default on
 
 /* ===================== UTILITIES ===================== */
 const $ = id => document.getElementById(id);
@@ -542,6 +618,9 @@ function cloneDb(d) { const o = {}; Object.keys(d).forEach(k => { o[k] = [...d[k
 function fmtTime(m) { m = ((m % 1440) + 1440) % 1440; let h = Math.floor(m / 60); const mm = m % 60, ap = h >= 12 ? 'PM' : 'AM'; h = h % 12 || 12; return `${h}:${String(mm).padStart(2, '0')}${ap}`; }
 const ul = items => `<ul>${items.map(i => `<li>${esc(i)}</li>`).join('')}</ul>`;
 function toast(msg) { const el = $('toast'); el.textContent = msg; el.classList.add('show'); clearTimeout(toast._t); toast._t = setTimeout(() => el.classList.remove('show'), 2800); }
+
+function getSkills(ident) { return agentSkills.get(ident) || new Set(); }
+function hasSkill(ident, skill) { return getSkills(ident).has(skill); }
 
 /* ===================== MODAL ===================== */
 function ask(title, html, okText = 'OK', showCancel = true) {
@@ -617,9 +696,44 @@ function loadSeniors() {
   try { const a = JSON.parse(localStorage.getItem(STORAGE.sen) || 'null'); if (Array.isArray(a) && a.every(x => /^(id|n):/.test(x))) return new Set(a); } catch (e) {}
   return defaultSeniors();
 }
+function loadSlotHistory() {
+  try {
+    const raw = localStorage.getItem(STORAGE.slotHist);
+    if (!raw) return;
+    const o = JSON.parse(raw);
+    if (o && typeof o === 'object') {
+      slotHistory = new Map(Object.entries(o));
+    }
+  } catch (e) {}
+  smartRotation = localStorage.getItem(STORAGE.smartRot) !== '0'; // default true
+  $('smartRotation').checked = smartRotation;
+}
 function persist() {
-  try { localStorage.setItem(STORAGE.db, JSON.stringify(db)); localStorage.setItem(STORAGE.sen, JSON.stringify([...seniors])); }
-  catch (e) { toast('Could not save to browser storage'); }
+  try {
+    localStorage.setItem(STORAGE.db, JSON.stringify(db));
+    localStorage.setItem(STORAGE.sen, JSON.stringify([...seniors]));
+    const histObj = {};
+    slotHistory.forEach((v,k) => { histObj[k] = v; });
+    localStorage.setItem(STORAGE.slotHist, JSON.stringify(histObj));
+    localStorage.setItem(STORAGE.smartRot, smartRotation ? '1' : '0');
+    localStorage.setItem('bsg_rules_v1', JSON.stringify({
+      skills: [...agentSkills.entries()].map(([k,v]) => [k, [...v]]),
+      skillRules, pairRules, versions, exportLayout
+    }));
+  } catch (e) { toast('Could not save to browser storage'); }
+}
+function loadPersistedRules() {
+  try {
+    const raw = localStorage.getItem('bsg_rules_v1');
+    if (!raw) return;
+    const o = JSON.parse(raw);
+    if (o.skills) agentSkills = new Map(o.skills.map(([k,v]) => [k, new Set(v)]));
+    if (Array.isArray(o.skillRules)) skillRules = o.skillRules;
+    if (Array.isArray(o.pairRules)) pairRules = o.pairRules;
+    if (Array.isArray(o.versions)) versions = o.versions;
+    if (o.exportLayout) exportLayout = o.exportLayout;
+    $('exportLayout').value = exportLayout;
+  } catch (e) {}
 }
 function pushHistory() { undoStack.push({ db: cloneDb(db), sen: [...seniors] }); if (undoStack.length > 30) undoStack.shift(); $('undoBtn').disabled = false; }
 function undo() {
@@ -648,12 +762,13 @@ function fillSelect(id, teams, allLabel) {
 function refreshAll() {
   index = buildIndex(db);
   const teams = Object.keys(db);
-  ['renameDeptSelect', 'deleteDeptSelect', 'addTargetSelect', 'transferDeptSelect'].forEach(id => fillSelect(id, teams));
+  ['renameDeptSelect', 'deleteDeptSelect', 'addTargetSelect', 'transferDeptSelect', 'pairAgentA', 'pairAgentB'].forEach(id => fillSelect(id, teams, 'Select agent'));
   fillSelect('pickerDeptFilter', teams, 'All teams');
   renderPicker();
   if (!textDirty) renderTextarea();
   renderStats();
   refreshRoster();
+  renderRulesUI();
 }
 function renderTextarea() { $('agentData').value = serializeDb(db); setDirty(false); }
 function renderStats() {
@@ -670,8 +785,9 @@ function renderPicker() {
     db[team].forEach((label, i) => {
       if (q && !label.toLowerCase().includes(q) && !team.toLowerCase().includes(q)) return;
       const key = JSON.stringify([team, i]); shownKeys.push(key);
+      const sk = [...getSkills(ident(label))].map(s => `<span class="skill-pill">${esc(s)}</span>`).join('');
       html += `<label class="pick-row"><input type="checkbox" data-key="${esc(key)}" ${selected.has(key) ? 'checked' : ''}>` +
-        `<span class="pick-star">${seniors.has(ident(label)) ? '⭐' : ''}</span><span class="pick-name">${esc(label)}</span><span class="pick-dept">${esc(team)}</span></label>`;
+        `<span class="pick-star">${seniors.has(ident(label)) ? '⭐' : ''}</span><span class="pick-name">${esc(label)}</span><span class="pick-dept">${esc(team)}</span>${sk}</label>`;
     });
   });
   $('pickerList').innerHTML = html || '<div class="empty">No agents match.</div>';
@@ -688,6 +804,37 @@ function validateTeamName(name, d) {
   if (ID_RE.test(name)) return 'This looks like an agent line (ID + name), not a team name.';
   if (Object.keys(d).some(k => k.toLowerCase() === name.toLowerCase())) return 'A team with this name already exists.';
   return '';
+}
+
+/* ===================== RULES UI (NEW) ===================== */
+function renderRulesUI() {
+  const skillSet = new Set();
+  index.people.forEach(p => getSkills(p.ident).forEach(s => skillSet.add(s)));
+  let html = '';
+  skillSet.forEach(s => {
+    html += `<span class="skill-pill">${esc(s)}</span>`;
+  });
+  $('skillList').innerHTML = html || '<div class="muted">No skills defined yet.</div>';
+
+  let sr = '';
+  skillRules.forEach((rule, i) => {
+    sr += `<div class="rule-row"><span>${esc(rule.skill)} ≥ ${rule.min} per slot ${rule.hard ? '<span style="color:var(--danger)">[HARD]</span>' : '<span style="color:var(--muted)">[SOFT]</span>'}</span><button class="btn-sm remove" type="button" data-act="delSkillRule" data-i="${i}">×</button></div>`;
+  });
+  $('skillRuleList').innerHTML = sr || '<div class="muted">No skill coverage rules.</div>';
+
+  let pr = '';
+  pairRules.forEach((rule, i) => {
+    const pa = index.byId.get(rule.a.replace('id:','')) || index.people.find(p => p.ident === rule.a);
+    const pb = index.byId.get(rule.b.replace('id:','')) || index.people.find(p => p.ident === rule.b);
+    const an = pa ? pa.name : rule.a;
+    const bn = pb ? pb.name : rule.b;
+    pr += `<div class="rule-row"><span>${esc(an)} ↔ ${esc(bn)} (${rule.type === 'separate' ? 'Separate' : 'Together'}) ${rule.hard ? '<span style="color:var(--danger)">[HARD]</span>' : '<span style="color:var(--muted)">[SOFT]</span>'}</span><button class="btn-sm remove" type="button" data-act="delPairRule" data-i="${i}">×</button></div>`;
+  });
+  $('pairRuleList').innerHTML = pr || '<div class="muted">No pair rules.</div>';
+
+  const opts = index.people.map(p => `<option value="${esc(p.ident)}">${esc(p.name)} (${esc(p.team)})</option>`).join('');
+  $('pairAgentA').innerHTML = opts;
+  $('pairAgentB').innerHTML = opts;
 }
 
 /* ===================== DIRECTORY ACTIONS ===================== */
@@ -803,7 +950,7 @@ async function applySeniorList() {
     const s = splitLabel(line); let p = null;
     if (s.id) p = index.byId.get(s.id);
     else {
-      if (/senior/i.test(line) || teamNames.includes(line.toLowerCase())) return; // header line
+      if (/senior/i.test(line) || teamNames.includes(line.toLowerCase())) return;
       p = (index.byKey.get(nameKey(s.name)) || [])[0];
     }
     p ? found.add(p.ident) : missing.push(line);
@@ -936,17 +1083,13 @@ function refreshRoster() {
 /* ===================== GENERATION ===================== */
 function buildPlan(people, n) {
   const buckets = Array.from({ length: n }, () => []);
-  const sizes = Array(n).fill(0);      // প্রতিটি স্লটে এখন পর্যন্ত মোট কতজন
-  const sen = Array(n).fill(0);        // প্রতিটি স্লটে এখন পর্যন্ত কতজন সিনিয়র
+  const sizes = Array(n).fill(0);
+  const sen = Array(n).fill(0);
 
-  // টিম অনুযায়ী গ্রুপ করা
   const byTeam = {};
   people.forEach(p => (byTeam[p.team] = byTeam[p.team] || []).push(p));
   const teams = shuffle(Object.keys(byTeam));
 
-  // ধাপ ১: প্রতিটি টিমের জন্য স্লট-ভিত্তিক কোটা ঠিক করা
-  // মোট t জন, n স্লট => প্রতি স্লটে floor(t/n) জন, বাকি (t % n) জন অতিরিক্ত।
-  // অতিরিক্তরা সেই স্লটে যায় যেখানে মোট সংখ্যা সবচেয়ে কম (ফলে স্লটের মোট সাইজও ব্যালেন্স থাকে)।
   const quota = {};
   teams.forEach(t => {
     const total = byTeam[t].length, base = Math.floor(total / n), extra = total % n;
@@ -956,7 +1099,6 @@ function buildPlan(people, n) {
     quota[t].forEach((q, s) => { sizes[s] += q; });
   });
 
-  // ধাপ ২: কোটার ভেতরে সদস্য বসানো। যেসব টিমে সিনিয়র বেশি, তাদের আগে প্রসেস করা হয়।
   const seniorCount = t => byTeam[t].filter(p => p.senior).length;
   const phase2 = [...teams].sort((a, b) => seniorCount(b) - seniorCount(a));
   phase2.forEach(t => {
@@ -964,7 +1106,6 @@ function buildPlan(people, n) {
     const seniorsList = shuffle(byTeam[t].filter(p => p.senior));
     const regulars = shuffle(byTeam[t].filter(p => !p.senior));
 
-    // সিনিয়রদের এমন স্লটে দেওয়া হয় যেখানে কোটা বাকি আছে এবং সিনিয়র সংখ্যা সবচেয়ে কম
     seniorsList.forEach(p => {
       const cand = shuffle([...Array(n).keys()].filter(s => left[s] > 0));
       let best = cand[0];
@@ -972,7 +1113,6 @@ function buildPlan(people, n) {
       buckets[best].push(p); left[best]--; sen[best]++;
     });
 
-    // বাকি কোটা অনুযায়ী সাধারণ এজেন্টদের র‍্যান্ডমভাবে বসানো
     const slotsLeft = [];
     left.forEach((c, s) => { for (let k = 0; k < c; k++) slotsLeft.push(s); });
     shuffle(slotsLeft);
@@ -982,6 +1122,185 @@ function buildPlan(people, n) {
   buckets.forEach(shuffle);
   return buckets;
 }
+
+/* NEW: Smart rotation balancer */
+function applySmartRotation(buckets) {
+  const n = buckets.length;
+  let changed = true;
+  let rounds = 0;
+  while (changed && rounds < 60) {
+    changed = false;
+    rounds++;
+    const curSlot = new Map();
+    buckets.forEach((b, s) => b.forEach(p => curSlot.set(p.ident, s)));
+    for (let s = 0; s < n; s++) {
+      for (let i = 0; i < buckets[s].length; i++) {
+        const p = buckets[s][i];
+        const hist = slotHistory.get(p.ident) || [];
+        const repeats = hist.filter(h => h.slot === s).length;
+        if (repeats === 0) continue;
+        for (let t = 0; t < n; t++) {
+          if (t === s) continue;
+          for (let j = 0; j < buckets[t].length; j++) {
+            const q = buckets[t][j];
+            const qHist = slotHistory.get(q.ident) || [];
+            const qRepeatsT = qHist.filter(h => h.slot === t).length;
+            const qRepeatsS = qHist.filter(h => h.slot === s).length;
+            const pRepeatsT = (slotHistory.get(p.ident) || []).filter(h => h.slot === t).length;
+            if (pRepeatsT < repeats && qRepeatsS <= qRepeatsT) {
+              buckets[s][i] = q;
+              buckets[t][j] = p;
+              changed = true;
+              break;
+            }
+          }
+          if (changed) break;
+        }
+        if (changed) break;
+      }
+      if (changed) break;
+    }
+  }
+}
+
+/* NEW: validate & best-effort repair hard constraints */
+function validateAndRepair(r) {
+  const violations = [];
+  const maxAttempts = 200;
+  let attempts = 0;
+
+  skillRules.forEach(rule => {
+    r.buckets.forEach((b, s) => {
+      const count = b.filter(p => hasSkill(p.ident, rule.skill)).length;
+      if (count < rule.min) {
+        violations.push({ type: 'skill', slot: s, skill: rule.skill, need: rule.min, have: count, hard: rule.hard });
+      }
+    });
+  });
+
+  pairRules.forEach(rule => {
+    const findSlot = (ident) => r.buckets.findIndex(b => b.some(p => p.ident === ident));
+    const ia = findSlot(rule.a), ib = findSlot(rule.b);
+    if (ia < 0 || ib < 0) return;
+    if (rule.type === 'separate' && ia === ib) violations.push({ type: 'pair', slot: ia, a: rule.a, b: rule.b, hard: rule.hard });
+    if (rule.type === 'together' && ia !== ib) violations.push({ type: 'pair', slot: -1, a: rule.a, b: rule.b, hard: rule.hard });
+  });
+
+  const hardViolations = violations.filter(v => v.hard);
+  let fixed = 0;
+  while (hardViolations.length && attempts < maxAttempts) {
+    attempts++;
+    const v = hardViolations[0];
+    let improved = false;
+    if (v.type === 'skill') {
+      const slot = v.slot;
+      for (let i = 0; i < r.buckets.length; i++) {
+        if (i === slot) continue;
+        const donorIdx = r.buckets[i].findIndex(p => hasSkill(p.ident, v.skill) && !r.buckets[slot].some(x => x.ident === p.ident));
+        if (donorIdx >= 0) {
+          const [donor] = r.buckets[i].splice(donorIdx, 1);
+          const receiverIdx = r.buckets[slot].findIndex(p => !hasSkill(p.ident, v.skill));
+          if (receiverIdx >= 0) {
+            const [receiver] = r.buckets[slot].splice(receiverIdx, 1);
+            r.buckets[i].push(receiver);
+            r.buckets[slot].push(donor);
+            improved = true; fixed++; break;
+          } else {
+            r.buckets[i].push(donor);
+          }
+        }
+      }
+    } else if (v.type === 'pair') {
+      if (v.type === 'pair' && rule.type === 'separate') {
+        const slot = v.slot;
+        const idxA = r.buckets[slot].findIndex(p => p.ident === v.a);
+        const idxB = r.buckets[slot].findIndex(p => p.ident === v.b);
+        if (idxA >= 0 && idxB >= 0) {
+          const target = (idxA < idxB ? idxA : idxB);
+          const [moved] = r.buckets[slot].splice(target, 1);
+          const otherSlot = (slot + 1) % r.buckets.length;
+          r.buckets[otherSlot].push(moved);
+          improved = true; fixed++;
+        }
+      } else {
+        const sa = r.buckets.findIndex(b => b.some(p => p.ident === v.a));
+        const sb = r.buckets.findIndex(b => b.some(p => p.ident === v.b));
+        if (sa >= 0 && sb >= 0 && sa !== sb) {
+          const idx = r.buckets[sb].findIndex(p => p.ident === v.b);
+          const [moved] = r.buckets[sb].splice(idx, 1);
+          r.buckets[sa].push(moved);
+          improved = true; fixed++;
+        }
+      }
+    }
+    if (!improved) hardViolations.shift();
+  }
+
+  const final = [];
+  skillRules.forEach(rule => {
+    r.buckets.forEach((b, s) => {
+      const count = b.filter(p => hasSkill(p.ident, rule.skill)).length;
+      if (count < rule.min) final.push({ type: 'skill', slot: s, skill: rule.skill, need: rule.min, have: count, hard: rule.hard });
+    });
+  });
+  pairRules.forEach(rule => {
+    const findSlot = (ident) => r.buckets.findIndex(b => b.some(p => p.ident === ident));
+    const ia = findSlot(rule.a), ib = findSlot(rule.b);
+    if (ia < 0 || ib < 0) return;
+    if (rule.type === 'separate' && ia === ib) final.push({ type: 'pair', slot: ia, a: rule.a, b: rule.b, hard: rule.hard });
+    if (rule.type === 'together' && ia !== ib) final.push({ type: 'pair', slot: -1, a: rule.a, b: rule.b, hard: rule.hard });
+  });
+  return { violations: final, fixed };
+}
+
+/* NEW: record slot history after final generation */
+function recordSlotHistory(r) {
+  r.buckets.forEach((b, s) => {
+    b.forEach(p => {
+      if (!slotHistory.has(p.ident)) slotHistory.set(p.ident, []);
+      const h = slotHistory.get(p.ident);
+      h.push({ date: r.dateStr, slot: s });
+      if (h.length > 30) h.shift();
+    });
+  });
+  persist();
+}
+
+/* NEW: compute fairness score */
+function computeFairness(r) {
+  const n = r.buckets.length;
+  const counts = {};
+  r.buckets.forEach((b, s) => b.forEach(p => {
+    if (!counts[p.ident]) counts[p.ident] = Array(n).fill(0);
+    counts[p.ident][s]++;
+  }));
+  let repeats = 0, total = 0;
+  Object.values(counts).forEach(arr => {
+    arr.forEach(c => { total += c; if (c > 1) repeats += c - 1; });
+  });
+  return total === 0 ? 100 : Math.round(100 - (repeats / total * 100));
+}
+
+/* NEW: render rotation status */
+function renderRotationStatus() {
+  const wrap = $('rotationStatus');
+  if (!lastResult) { wrap.innerHTML = ''; return; }
+  let repeats = 0;
+  const detail = [];
+  lastResult.buckets.forEach((b, s) => {
+    b.forEach(p => {
+      const hist = slotHistory.get(p.ident) || [];
+      const c = hist.filter(h => h.slot === s).length;
+      if (c > 1) { repeats++; detail.push(`${esc(p.name)} → Slot ${s+1} (${c}বার)`); }
+    });
+  });
+  if (repeats === 0) {
+    wrap.innerHTML = `<div class="verify ok">✅ কেউ একই স্লটে বারবার নেই। স্মার্ট রোটেশন সফল।</div>`;
+  } else {
+    wrap.innerHTML = `<div class="verify warn">⚠️ ${repeats} জন এজেন্ট সাম্প্রতিকদিনে একই স্লটে পেলেন: ${detail.slice(0,5).join(', ')}${detail.length>5?'...':''}</div>`;
+  }
+}
+
 async function generateSchedule(scroll = true) {
   const people = currentRoster.people;
   if (!people.length) return notify('No agents', '<p>Paste today\'s shift list in step 1, or switch to "Use full directory".</p>');
@@ -992,14 +1311,26 @@ async function generateSchedule(scroll = true) {
   const labels = Array.from({ length: n }, (_, i) => `${fmtTime(start + i * dur)}-${fmtTime(start + (i + 1) * dur)}`);
   const teamOrder = [...Object.keys(db)];
   people.forEach(p => { if (!teamOrder.includes(p.team)) teamOrder.push(p.team); });
+
+  if (lastResult) previousResult = JSON.parse(JSON.stringify(lastResult));
+
+  const buckets = buildPlan(people.map(p => ({ ...p })), n);
+
+  if (smartRotation) applySmartRotation(buckets);
+
+  const repair = validateAndRepair({ buckets, teamOrder });
+
   lastResult = { dateStr: $('dateSelect').value, session: $('sessionTypeSelect').value, dur, labels, teamOrder,
-    expected: people.map(p => p.ident), buckets: buildPlan(people.map(p => ({ ...p })), n), dupes: currentRoster.dupes };
+    expected: people.map(p => p.ident), buckets, dupes: currentRoster.dupes, repair };
+  recordSlotHistory(lastResult);
+
   $('outputCard').classList.remove('hidden');
   $('outputCard').classList.remove('pop'); void $('outputCard').offsetWidth; $('outputCard').classList.add('pop');
   renderOutput();
   if (scroll) $('outputCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
-  toast(`Schedule generated: ${people.length} agents`);
+  toast(`Schedule generated: ${people.length} agents${repair.fixed ? ` · ${repair.fixed} constraint(s) repaired` : ''}`);
 }
+
 function computeStats(r) {
   const n = r.buckets.length, m = {}, sm = {};
   r.teamOrder.forEach(t => { m[t] = Array(n).fill(0); sm[t] = Array(n).fill(0); });
@@ -1012,17 +1343,35 @@ const teamColor = (r, t) => PALETTE[Math.max(0, r.teamOrder.indexOf(t)) % PALETT
 function renderOutput() {
   const r = lastResult; if (!r) return;
   const st = computeStats(r), sizes = r.buckets.map(b => b.length), max = Math.max(...sizes, 1), min = Math.min(...sizes);
+  const fairness = computeFairness(r);
   $('outTitle').textContent = `${r.dateStr} · ${r.session} · ${r.dur} min slots`;
   $('totalBadge').textContent = `Total: ${st.total}`;
-  $('statTiles').innerHTML = [['👥', st.total, 'Agents'], ['🏷️', st.totals.length, 'Teams'], ['⭐', st.seniorTotal, 'Seniors'], ['🕒', r.buckets.length, 'Slots'], ['⚖️', min === max ? `${max}` : `${min}–${max}`, 'Per slot']]
+  $('statTiles').innerHTML = [['👥', st.total, 'Agents'], ['🏷️', st.totals.length, 'Teams'], ['⭐', st.seniorTotal, 'Seniors'], ['🕒', r.buckets.length, 'Slots'], ['⚖️', min === max ? `${max}` : `${min}–${max}`, 'Per slot'], ['🔄', fairness, 'Fairness']]
     .map(([i, v, l]) => `<div class="tile"><span class="ti">${i}</span><div><div class="tv">${v}</div><div class="tlab">${l}</div></div></div>`).join('');
 
-  // verification: every expected agent is scheduled exactly once
   const actual = r.buckets.flat().map(p => p.ident), uniq = new Set(actual);
   const okAll = actual.length === r.expected.length && uniq.size === actual.length && r.expected.every(i => uniq.has(i));
-  $('verifyBox').innerHTML = okAll
+
+  let verifyHtml = okAll
     ? `<div class="verify ok">✅ <b>Verified:</b> ${actual.length} of ${r.expected.length} agents scheduled exactly once. ${max - min <= 1 ? 'Slot sizes differ by at most 1.' : `Slot sizes differ by ${max - min} (manually adjusted).`}</div>`
     : `<div class="verify bad">❌ <b>Mismatch:</b> expected ${r.expected.length} agents, schedule has ${actual.length} (${uniq.size} unique). Please generate again.</div>`;
+
+  const hard = r.repair.violations.filter(v => v.hard);
+  const soft = r.repair.violations.filter(v => !v.hard);
+  if (hard.length) {
+    const list = hard.map(v => {
+      if (v.type === 'skill') return `Slot ${v.slot + 1}: need ≥ ${v.need} "${esc(v.skill)}", have ${v.have}`;
+      return `Slot ${v.slot + 1}: ${esc(v.a)} and ${esc(v.b)} should not be together`;
+    }).join('<br>');
+    verifyHtml += `<div class="verify bad">⚠️ <b>Hard rule(s) not satisfiable:</b><br>${esc(list)}</div>`;
+  } else if (soft.length) {
+    const list = soft.map(v => {
+      if (v.type === 'skill') return `Slot ${v.slot + 1}: suggested ≥ ${v.need} "${esc(v.skill)}", have ${v.have}`;
+      return `Slot ${v.slot + 1}: ${esc(v.a)} and ${esc(v.b)} ${v.type === 'together' ? 'should be together' : 'should be separate'}`;
+    }).join('<br>');
+    verifyHtml += `<div class="verify warn">ℹ️ <b>Soft rule(s) not met:</b><br>${esc(list)}</div>`;
+  }
+  $('verifyBox').innerHTML = verifyHtml;
 
   $('teamBadges').innerHTML = st.totals.map(t => `<span class="badge"><i class="dot" style="--tc:${teamColor(r, t.name)}"></i>${esc(t.name)}: <b>${t.total}</b></span>`).join('') +
     `<span class="badge badge-acc">⭐ Seniors: <b>${st.seniorTotal}</b></span>`;
@@ -1046,6 +1395,7 @@ function renderOutput() {
   $('matrixWrap').innerHTML = tb;
 
   renderLists(); renderText();
+  renderRotationStatus();
 }
 function ordered(r, b) {
   const o = $('orderSelect').value, a = [...b];
@@ -1064,9 +1414,13 @@ function renderLists() {
   $('slotLists').innerHTML = r.buckets.map((b, s) => {
     const items = ordered(r, b).map((p, i) => {
       const dim = q && !p.name.toLowerCase().includes(q) && !(p.id || '').toLowerCase().includes(q);
+      const st = breakStatus.get(p.ident) || 'not_started';
+      const stLabel = st === 'not_started' ? 'Not Started' : st === 'on_break' ? 'On Break' : 'Returned';
+      const stClass = st === 'on_break' ? 'warn' : st === 'returned' ? 'good' : '';
       return `<div class="agent${dim ? ' dim' : ''}" draggable="true" data-ident="${esc(p.ident)}" data-slot="${s}"><span class="num">${i + 1}</span>` +
         `<span class="aname">${esc(p.name)}</span>` +
-        `<span class="ateam"><i class="dot" style="--tc:${teamColor(r, p.team)}"></i>${esc(p.team)}</span></div>`;
+        `<span class="ateam"><i class="dot" style="--tc:${teamColor(r, p.team)}"></i>${esc(p.team)}</span>` +
+        `<span class="status-chip ${stClass}" data-act="cycleStatus" data-ident="${esc(p.ident)}">${stLabel}</span></div>`;
     }).join('');
     return `<div class="list-col" data-slot="${s}"><div class="list-head"><span>Slot ${s + 1}</span><span class="muted">${esc(r.labels[s])} · ${b.length}</span></div>` +
       `<div class="agents">${items || '<div class="empty">No agents</div>'}</div></div>`;
@@ -1078,30 +1432,46 @@ function moveAgent(identVal, from, to) {
   const [p] = r.buckets[from].splice(i, 1); r.buckets[to].push(p);
   renderOutput(); toast(`${p.name} moved to Slot ${to + 1}`);
 }
-function buildText() {
+function buildText(layout = exportLayout) {
   const r = lastResult;
-  let out = `*${r.dateStr} ${r.session} (${r.dur}min Break Slot)*\n*No Swap Allowed*\n\n`;
+  if (!r) return '';
+  let out = `*${r.dateStr} ${r.session} (${r.dur}min Break Slot)*\n`;
+  if (layout === 'supervisor') out += `*Slots:* ${r.buckets.length} | *Duration:* ${r.dur}min\n`;
+  out += `*No Swap Allowed*\n\n`;
   r.buckets.forEach((b, s) => {
-    out += `${r.labels[s]}\n\n`;
-    const items = ordered(r, b).map(p => p.name);
-    out += (items.length ? items.join('\n') : 'No agents assigned') + '\n\n';
+    out += `${r.labels[s]}\n`;
+    const items = ordered(r, b);
+    if (layout === 'team') {
+      out += items.map(p => p.name).join('\n');
+    } else if (layout === 'supervisor') {
+      out += items.map(p => {
+        const skills = [...getSkills(p.ident)].join(',') || '—';
+        const st = breakStatus.get(p.ident) || 'not_started';
+        const stLabel = st === 'not_started' ? 'NS' : st === 'on_break' ? 'OB' : 'RT';
+        return `${p.name} (${p.team})${p.id ? ` [${p.id}]` : ''} | Skills: ${skills} | Status: ${stLabel}`;
+      }).join('\n');
+    } else {
+      out += items.map(p => p.name).join('\n');
+    }
+    out += '\n\n';
   });
   return out.trim();
 }
-function renderText() { if (lastResult) $('outputText').textContent = buildText(); }
+function renderText() { if (lastResult) $('outputText').textContent = buildText(exportLayout); }
 
 /* ===================== EXPORTS ===================== */
 async function copyOutput() {
   if (!lastResult) return;
-  const text = buildText();
+  const text = buildText(exportLayout);
   try { await navigator.clipboard.writeText(text); }
   catch (e) { const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); }
-  toast('Full list copied');
+  toast(`Full list copied (${exportLayout})`);
 }
 const fileBase = () => `${lastResult.dateStr}_${lastResult.session}_Break_Schedule`.replace(/[^\w.-]+/g, '_');
 function downloadTxt() {
   if (!lastResult) return;
-  const url = URL.createObjectURL(new Blob([buildText()], { type: 'text/plain;charset=utf-8' }));
+  const text = buildText(exportLayout);
+  const url = URL.createObjectURL(new Blob([text], { type: 'text/plain;charset=utf-8' }));
   const a = document.createElement('a'); a.href = url; a.download = `${fileBase()}.txt`;
   document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000); toast('File downloaded');
 }
@@ -1109,9 +1479,42 @@ function exportPng() {
   if (!lastResult) return;
   if (typeof html2canvas !== 'function') return notify('Export failed', '<p>html2canvas failed to load. Check your internet connection.</p>');
   toast('Generating image...');
-  html2canvas($('exportArea'), { backgroundColor: document.body.classList.contains('light') ? '#eef2f7' : '#07070a', scale: 2 })
+  const area = $('exportArea');
+  const wasPrint = area.classList.contains('print-layout');
+  if (exportLayout === 'print' && !wasPrint) area.classList.add('print-layout');
+  html2canvas(area, { backgroundColor: document.body.classList.contains('light') ? '#eef2f7' : '#07070a', scale: 2 })
     .then(c => { const a = document.createElement('a'); a.download = `${fileBase()}.png`; a.href = c.toDataURL('image/png'); a.click(); toast('PNG exported'); })
-    .catch(() => toast('Image export failed'));
+    .catch(() => toast('Image export failed'))
+    .finally(() => { if (exportLayout === 'print' && !wasPrint) area.classList.remove('print-layout'); });
+}
+
+/* ===================== NEW: Compare & Versions ===================== */
+function renderCompare() {
+  const wrap = $('compareWrap');
+  if (!previousResult || !lastResult) { wrap.innerHTML = '<div class="empty">No previous schedule to compare.</div>'; return; }
+  const prevMap = new Map();
+  previousResult.buckets.forEach((b, s) => b.forEach(p => prevMap.set(p.ident, { slot: s, name: p.name })));
+  let changed = 0;
+  let rows = lastResult.buckets.flat().map(p => {
+    const prev = prevMap.get(p.ident);
+    const curSlot = lastResult.buckets.findIndex(b => b.some(x => x.ident === p.ident));
+    const status = prev ? (prev.slot === curSlot ? 'Unchanged' : 'Changed') : 'New';
+    if (status === 'Changed') changed++;
+    return `<tr><td>${esc(p.name)}</td><td>${prev ? `Slot ${prev.slot + 1}` : '—'}</td><td>Slot ${curSlot + 1}</td><td><span class="chip ${status === 'Changed' ? 'bad' : 'good'}">${status}</span></td></tr>`;
+  }).join('');
+  wrap.innerHTML = `<div class="chip">${changed} agent(s) changed slots</div><table class="matrix"><thead><tr><th>Agent</th><th>Previous Slot</th><th>Current Slot</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+function publishVersion() {
+  if (!lastResult) return notify('No schedule', '<p>Generate a schedule first.</p>');
+  const note = clean($('versionNote').value);
+  const v = (versions.length || 0) + 1;
+  versions.push({ v, date: new Date().toISOString(), session: lastResult.session, labels: lastResult.labels, buckets: JSON.parse(JSON.stringify(lastResult.buckets)), note, count: lastResult.buckets.reduce((a,b)=>a+b.length,0) });
+  $('versionNote').value = '';
+  renderVersions(); toast(`Version ${v} published`);
+}
+function renderVersions() {
+  const wrap = $('versionWrap');
+  wrap.innerHTML = versions.map(v => `<div class="version-item"><div><b>Version ${v.v}</b> · ${v.session} · ${v.count} agents${v.note ? ` — ${esc(v.note)}` : ''}<br><span class="muted">${new Date(v.date).toLocaleString()}</span></div></div>`).join('') || '<div class="empty">No versions yet.</div>';
 }
 
 /* ===================== INIT & EVENTS ===================== */
@@ -1181,7 +1584,60 @@ function bindEvents() {
   on('showIds', 'change', () => { renderLists(); renderText(); });
   on('copyBtn', 'click', copyOutput); on('dlBtn', 'click', downloadTxt); on('pngBtn', 'click', exportPng);
 
-  // drag & drop between slots
+  document.querySelectorAll('input[name="exportLayout"]').forEach(radio => {
+    radio.addEventListener('change', () => {
+      exportLayout = radio.value;
+      renderLists(); renderText();
+    });
+  });
+
+  on('smartRotation', 'change', () => {
+    smartRotation = $('smartRotation').checked;
+    persist();
+    toast(smartRotation ? 'স্মার্ট রোটেশন চালু' : 'স্মার্ট রোটেশন বন্ধ');
+  });
+
+  on('addSkillBtn', 'click', () => {
+    const skill = clean($('skillNameInput').value); if (!skill) return;
+    index.people.forEach(p => { if (!getSkills(p.ident).has(skill)) getSkills(p.ident).add(skill); });
+    $('skillNameInput').value = '';
+    persist(); renderRulesUI(); toast(`Skill "${skill}" added to all current agents`);
+  });
+  on('addSkillRuleBtn', 'click', () => {
+    const skill = clean($('skillRuleSkill').value); const min = parseInt($('skillRuleMin').value, 10) || 0;
+    if (!skill) return;
+    skillRules.push({ skill, min, hard: $('skillRuleHard').checked });
+    $('skillRuleSkill').value = ''; $('skillRuleMin').value = ''; $('skillRuleHard').checked = false;
+    persist(); renderRulesUI(); toast('Skill rule added');
+  });
+  on('addPairRuleBtn', 'click', () => {
+    const a = $('pairAgentA').value, b = $('pairAgentB').value;
+    if (!a || !b || a === b) return notify('Select two different agents', '<p>Please select two distinct agents.</p>');
+    pairRules.push({ a, b, type: $('pairType').value, hard: $('pairHard').checked });
+    $('pairHard').checked = false;
+    persist(); renderRulesUI(); toast('Pair rule added');
+  });
+  $('skillRuleList').addEventListener('click', e => {
+    const b = e.target.closest('[data-act="delSkillRule"]'); if (!b) return;
+    const i = +b.dataset.i; skillRules.splice(i, 1); persist(); renderRulesUI(); toast('Skill rule removed');
+  });
+  $('pairRuleList').addEventListener('click', e => {
+    const b = e.target.closest('[data-act="delPairRule"]'); if (!b) return;
+    const i = +b.dataset.i; pairRules.splice(i, 1); persist(); renderRulesUI(); toast('Pair rule removed');
+  });
+
+  on('compareBtn', 'click', renderCompare);
+  on('publishVersionBtn', 'click', publishVersion);
+
+  $('slotLists').addEventListener('click', e => {
+    const btn = e.target.closest('[data-act="cycleStatus"]'); if (!btn) return;
+    const ident = btn.dataset.ident;
+    const cur = breakStatus.get(ident) || 'not_started';
+    const next = cur === 'not_started' ? 'on_break' : cur === 'on_break' ? 'returned' : 'not_started';
+    breakStatus.set(ident, next);
+    renderLists();
+  });
+
   const L = $('slotLists');
   L.addEventListener('dragstart', e => {
     const a = e.target.closest ? e.target.closest('.agent') : null; if (!a) return;
@@ -1193,7 +1649,6 @@ function bindEvents() {
   L.addEventListener('dragleave', e => { const c = e.target.closest('.list-col'); if (c && !c.contains(e.relatedTarget)) c.classList.remove('over'); });
   L.addEventListener('drop', e => { const c = e.target.closest('.list-col'); if (!c || !drag) return; e.preventDefault(); const d = drag; drag = null; moveAgent(d.ident, d.slot, +c.dataset.slot); });
 
-  // modal + shortcuts
   on('modalOk', 'click', () => closeModal(true)); on('modalCancel', 'click', () => closeModal(false));
   $('modal').addEventListener('click', e => { if (e.target.id === 'modal') closeModal(false); });
   document.addEventListener('keydown', e => {
@@ -1204,7 +1659,7 @@ function bindEvents() {
 }
 function init() {
   populateDates(); applyTheme();
-  db = loadDb(); seniors = loadSeniors();
+  db = loadDb(); seniors = loadSeniors(); loadSlotHistory(); loadPersistedRules();
   mode = localStorage.getItem(STORAGE.mode) === 'full' ? 'full' : 'roster';
   $('rosterText').value = localStorage.getItem(STORAGE.roster) || '';
   $('undoBtn').disabled = true;
